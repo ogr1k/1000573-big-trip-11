@@ -171,6 +171,7 @@ main {
   -ms-flex-pack: justify; }
 
 .trip-info__main {
+  margin-bottom: 35px;
   width: 600px; }
 
 .trip-info__title {
