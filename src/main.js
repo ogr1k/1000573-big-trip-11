@@ -4,7 +4,7 @@ import {createPriceTemplate} from "./components/price.js";
 import {createTabsTemplate} from "./components/tabs.js";
 import {createFiltersTemplate} from "./components/filters.js";
 import {createSortTemplate} from "./components/sorting.js";
-import {createAddEditTripFormTemplate} from "./components/form.js";
+import {createAddEditTripFormTemplate} from "./components/add-edit-trip-form.js";
 import {createTripDaysListTemplate} from "./components/days-list.js";
 import {createDayItemsTemplate} from "./components/day-items.js";
 
