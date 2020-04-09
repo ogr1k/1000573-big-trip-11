@@ -86,7 +86,7 @@ const createEditEventForm = () => {
 };
 
 const removeCreateFormElement = () => {
-  const createFormElement = document.querySelector(`.trip-events__item`);
+  const createFormElement = document.querySelector(`.create--form`);
   createFormElement.remove();
 };
 
