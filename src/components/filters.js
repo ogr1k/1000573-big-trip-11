@@ -10,7 +10,7 @@ const createFilterElement = (name, isChecked) => {
 
 
 export const createFiltersTemplate = (data) => {
-  const filters = data.map((it) => createFilterElement(it.name, it.isChecked)).join(`\n`);
+  const filters = data.map((it, index) => createFilterElement(it, index === 0)).join(`\n`);
   return (
     `<form class="trip-filters" action="#" method="get">
      ${filters}

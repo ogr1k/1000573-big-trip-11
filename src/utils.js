@@ -21,7 +21,16 @@ const isEscEvent = (evt, action) => {
   }
 };
 
+const setPretext = (element) => {
+  if (element === `Check-in` || element === `Restaurant` || element === `Sightseeing`) {
+    return ` in `;
+  } else {
+    return ` to `;
+  }
+};
+
 export {getRandomArrayItem};
 export {getRandomIntegerNumber};
 export {findLastElement};
 export {isEscEvent};
+export {setPretext};

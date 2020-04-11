@@ -3,7 +3,7 @@ const createTabElement = (name, isActive) => {
 };
 
 export const createTabsTemplate = (data) => {
-  const tabs = data.map((it) => createTabElement(it.name, it.isActive)).join(`\n`);
+  const tabs = data.map((it, index) => createTabElement(it, index === 0)).join(`\n`);
   return (
     `<nav class="trip-controls__trip-tabs  trip-tabs">
      ${tabs}

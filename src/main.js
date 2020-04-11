@@ -10,13 +10,13 @@ import {createDayItemsTemplate} from "./components/day-items.js";
 import {generateDays} from "./mock/item.js";
 import {createDayElement} from "./components/points-element.js";
 import {createEventOptionElement} from "./components/points-option.js";
-import {getRandomIntegerNumber} from "../src/utils.js";
-import {getRandomArrayItem} from "../src/utils.js";
+// import {getRandomIntegerNumber} from "../src/utils.js";
+// import {getRandomArrayItem} from "../src/utils.js";
 import {findLastElement} from "../src/utils.js";
 import {isEscEvent} from "../src/utils.js";
-import {NAVIGATION_ELEMENTS} from "./mock/filters-sort.js";
-import {FILTER_ELEMENTS} from "./mock/filters-sort.js";
-import {SORT_ELEMENTS} from "./mock/filters-sort.js";
+import {NAVIGATION_ELEMENTS} from "../src/constants.js";
+import {FILTER_ELEMENTS} from "../src/constants.js";
+import {SORT_ELEMENTS} from "../src/constants.js";
 
 const DAY_COUNT = 3;
 const POINTS_COUNT = 15;
@@ -50,8 +50,8 @@ const tripDaysElement = document.querySelector(`.trip-days`);
 for (let i = 0; i < DAY_COUNT; i++) {
   render(tripDaysElement, createDayItemsTemplate(i + 1), `beforeend`);
   for (let k = 0 + (i * POINTS_PER_DAY_COUNT); k < POINTS_PER_DAY_COUNT + (i * POINTS_PER_DAY_COUNT); k++) {
-    render(findLastElement(`.trip-events__list`), createDayElement(days[k]), `beforeend`);
-    for (let j = 0; j < getRandomIntegerNumber(0, days[k].options.length); j++) {
+    render(findLastElement(`.trip-events__list`), createDayElement(days[k], k), `beforeend`);
+    for (let j = 0; j < days[k].options.length; j++) {
       render(findLastElement(`.event__selected-offers`), createEventOptionElement(days[k].options[j]), `beforeend`);
     }
   }
@@ -76,46 +76,57 @@ const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`
 
 const tripSortFormelement = document.querySelector(`.trip-sort`);
 const createNewEventForm = () => {
-  render(tripSortFormelement, createAddEditTripFormTemplate(getRandomArrayItem(days), `create--form`, `Cancel`), `afterend`);
+  render(tripSortFormelement, createAddEditTripFormTemplate(), `afterend`);
 };
 
 const rollupElement = document.querySelector(`.event__rollup-btn`);
+const rollupElements = document.querySelectorAll(`.event__rollup-btn`);
 
-const createEditEventForm = () => {
-  render(rollupElement.parentNode, createAddEditTripFormTemplate(getRandomArrayItem(days), `edit--form`, `Delete`, `edit`), `afterend`);
+const createEditEventForm = (evt) => {
+  const elementIndex = evt.target.id;
+  render(evt.target.parentNode, createAddEditTripFormTemplate(days[elementIndex]), `afterend`);
 };
 
-const removeCreateFormElement = () => {
-  const createFormElement = document.querySelector(`.create--form`);
-  createFormElement.remove();
+const removeFormElement = () => {
+  const createFormElement = document.querySelector(`.event--edit`);
+  if (createFormElement !== null) {
+    createFormElement.remove();
+  }
 };
 
-const removeEditFormElement = () => {
-  const editFormElement = tripDaysElement.querySelector(`.edit--form`);
-  editFormElement.remove();
+const onCloseRollUpClick = () => {
+  removeFormElement();
   rollupElement.addEventListener(`click`, onRollUpClick);
 };
 
-const onRollUpClick = () => {
-  createEditEventForm();
-  rollupElement.removeEventListener(`click`, onRollUpClick);
-  const editFormElement = document.querySelector(`.edit--form`);
-  const rollUpCloseElement = editFormElement.querySelector(`.event__rollup-btn`);
-  rollUpCloseElement.addEventListener(`click`, removeEditFormElement);
+const onRollUpClick = (evt) => {
+  removeFormElement();
+  createEditEventForm(evt);
+  const formElement = document.querySelector(`.event--edit`);
+  const rollUpCloseElement = formElement.querySelector(`.event__rollup-btn`);
+  rollUpCloseElement.addEventListener(`click`, onCloseRollUpClick);
+  newEventButtonElement.addEventListener(`click`, onEventButtonClick);
 };
 
-rollupElement.addEventListener(`click`, onRollUpClick);
+rollupElements.forEach((rollUp) => {
+  rollUp.addEventListener(`click`, onRollUpClick);
+});
 
 
 const onEventButtonClick = () => {
+  removeFormElement();
   createNewEventForm();
   newEventButtonElement.removeEventListener(`click`, onEventButtonClick);
   document.addEventListener(`keydown`, onDocumentKeydown);
+  rollupElement.addEventListener(`click`, onRollUpClick);
 };
 
 const onDocumentKeydown = (evt) => {
-  isEscEvent(evt, removeCreateFormElement);
+  isEscEvent(evt, removeFormElement);
+  rollupElement.addEventListener(`click`, onRollUpClick);
   newEventButtonElement.addEventListener(`click`, onEventButtonClick);
 };
 
 newEventButtonElement.addEventListener(`click`, onEventButtonClick);
+
+export {days};
