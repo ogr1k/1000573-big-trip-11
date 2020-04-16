@@ -1,14 +1,3 @@
-// import {createInfoSectionTemplate} from "./components/information-section.js";
-// import {createInfoTemplate} from "./components/information";
-// import {createPriceTemplate} from "./components/price.js";
-// import {createTabsTemplate} from "./components/tabs.js";
-// import {createFiltersTemplate} from "./components/filters.js";
-// import {createSortTemplate} from "./components/sorting.js";
-// import {createAddEditTripFormTemplate} from "./components/add-edit-trip-form.js";
-// import {createTripDaysListTemplate} from "./components/days-list.js";
-// import {createDayItemsTemplate} from "./components/day-items.js";
-// import {createDayElement} from "./components/points-element.js";
-// import {createEventOptionElement} from "./components/points-option.js";
 import EditTripForm from "./components/add-edit-trip-form.js";
 import DayItemsTemplate from "./components/day-items.js";
 import TripDaysListTemplate from "./components/days-list.js";
@@ -22,9 +11,11 @@ import SortTemplate from "./components/sorting.js";
 import TabsTemplate from "./components/tabs.js";
 
 import {generateDays} from "./mock/item.js";
-import {findLastElement} from "../src/utils.js";
-import {isEscEvent} from "../src/utils.js";
+// import {isEscEvent} from "../src/utils.js";
 import {render, RenderPosition} from "./utils.js";
+import {getRandomArrayItem} from "./utils.js";
+import {findLastElement} from "./utils.js";
+
 
 import {NAVIGATION_ELEMENTS} from "../src/constants.js";
 import {FILTER_ELEMENTS} from "../src/constants.js";
@@ -56,30 +47,80 @@ render(tripEventsElement, new TripDaysListTemplate().getElement(), RenderPositio
 
 const tripDaysElement = document.querySelector(`.trip-days`);
 
-for (let i = 0; i < DAY_COUNT; i++) {
-  render(tripDaysElement, new DayItemsTemplate(i + 1).getElement(), RenderPosition.BEFOREEND);
-  for (let k = 0 + (i * POINTS_PER_DAY_COUNT); k < POINTS_PER_DAY_COUNT + (i * POINTS_PER_DAY_COUNT); k++) {
-    render(findLastElement(`.trip-events__list`), new DayItem(days[k], k).getElement(), RenderPosition.BEFOREEND);
-    // for (let j = 0; j < days[k].options.length; j++) {
-    //   render(findLastElement(`.event__selected-offers`), new EventOption(days[k].options[j]).getElement(), RenderPosition.BEFOREEND);
-    // }
+const renderOptions = (element, currentItem) => {
+  render(element, new EventOption(currentItem).getElement(), RenderPosition.BEFOREEND);
+};
+
+
+const renderDayItem = (element, currentDay) => {
+  for (let i = 0; i < POINTS_PER_DAY_COUNT; i++) {
+
+    const currentItem = getRandomArrayItem(days);
+    const dayItemComponent = new DayItem(currentItem);
+    render(element, dayItemComponent.getElement(), RenderPosition.BEFOREEND);
+    const rollUp = dayItemComponent.getElement().querySelector(`.event__rollup-btn`);
+
+    const editComponent = new EditTripForm(currentItem);
+
+    const onRollUpClick = () => {
+      currentDay.replaceChild(editComponent.getElement(), dayItemComponent.getElement());
+      closeRollup.addEventListener(`click`, onCloseRollupClick);
+      editComponent.getElement().addEventListener(`submit`, onEditFormSubmit);
+      rollUp.removeEventListener(`click`, onRollUpClick);
+    };
+
+    rollUp.addEventListener(`click`, onRollUpClick);
+
+    const closeRollup = editComponent.getElement().querySelector(`.event__rollup-btn`);
+
+    const replaceFormOnItem = (evt) => {
+      evt.preventDefault();
+      currentDay.replaceChild(dayItemComponent.getElement(), editComponent.getElement());
+      closeRollup.removeEventListener(`click`, onCloseRollupClick);
+      editComponent.getElement().removeEventListener(`submit`, onEditFormSubmit);
+      rollUp.addEventListener(`click`, onRollUpClick);
+    };
+
+    const onCloseRollupClick = (evt) => {
+      replaceFormOnItem(evt);
+    };
+
+
+    const onEditFormSubmit = (evt) => {
+      replaceFormOnItem(evt);
+    };
+
+    const optionsContainer = dayItemComponent.getElement().querySelector(`.event__selected-offers`);
+    currentItem.options.map((it) => renderOptions(optionsContainer, it)).join(`\n`);
   }
+};
+
+const renderDay = (index) => {
+  const dayComponent = new DayItemsTemplate(index + 1);
+  render(tripDaysElement, dayComponent.getElement(), RenderPosition.BEFOREEND);
+  const itemsList = dayComponent.getElement().querySelector(`.trip-events__list`);
+  renderDayItem(itemsList, itemsList);
+};
+
+for (let i = 0; i < DAY_COUNT; i++) {
+  renderDay(i);
 }
 
+const daysListElements = Array.from(document.querySelectorAll(`.trip-events__list`));
+const destination = daysListElements.map((it) => findLastElement(`.destination__item`, it).textContent).join(` &mdash; `);
 
-// const daysListElements = Array.from(document.querySelectorAll(`.trip-events__list`));
-// const destination = daysListElements.map((it) => findLastElement(`.destination__item`, it).textContent).join(` &mdash; `);
+document.querySelector(`.trip-info__title`).innerHTML = `${destination}`;
 
-// document.querySelector(`.trip-info__title`).innerHTML = `${destination}`;
+const tripCostElement = document.querySelector(`.trip-info__cost-value`);
+const summ = Array.from(document.querySelectorAll(`.event__price-value`));
 
-// const tripCostElement = document.querySelector(`.trip-info__cost-value`);
-// const summ = Array.from(document.querySelectorAll(`.event__price-value`));
+const finalSumm = summ.reduce((accumulator, currentvalue) => {
+  return accumulator + Number(currentvalue.textContent);
+}, 0);
 
-// const finalSumm = summ.reduce((accumulator, currentvalue) => {
-//   return accumulator + Number(currentvalue.textContent);
-// }, 0);
+tripCostElement.innerHTML = `${finalSumm}`;
 
-// tripCostElement.innerHTML = `${finalSumm}`;
+export {days};
 
 // const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
@@ -137,5 +178,3 @@ for (let i = 0; i < DAY_COUNT; i++) {
 // };
 
 // newEventButtonElement.addEventListener(`click`, onEventButtonClick);
-
-export {days};

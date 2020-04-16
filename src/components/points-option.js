@@ -1,5 +1,6 @@
 import {createElement} from "../utils.js";
 
+
 const createEventOptionElement = (data) => {
   const options = data.name;
   const price = data.price;
