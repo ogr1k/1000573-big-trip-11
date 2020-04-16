@@ -32,10 +32,10 @@ const generateDayItem = () => {
   };
 
   const setTime = () => {
-    const firstDateHour = getRandomIntegerNumber(0, 24);
+    const firstDateHour = getRandomIntegerNumber(0, 23);
     let getDate = (string) => new Date(2020, 0, 16, string.split(`:`)[0], string.split(`:`)[1]);
-    const firstTime = getDate(`${firstDateHour}:${getRandomIntegerNumber(0, 60)}`);
-    const secondTime = getDate(`${getRandomIntegerNumber(firstDateHour, 24)}:${getRandomIntegerNumber(0, 60)}`);
+    const firstTime = getDate(`${firstDateHour}:${getRandomIntegerNumber(0, 59)}`);
+    const secondTime = getDate(`${getRandomIntegerNumber(firstDateHour, 23)}:${getRandomIntegerNumber(0, 59)}`);
     let time = [firstTime, secondTime];
     return time;
   };

@@ -4,6 +4,7 @@ import {DESTINATIONS_POINT} from "../constants.js";
 import {setPretext} from "../utils.js";
 import {days} from "../main.js";
 import {getRandomArrayItem} from "../utils.js";
+import {createElement} from "../utils.js";
 
 
 const renderOption = (option, price, checked) => {
@@ -36,7 +37,7 @@ const setDestinationOptions = (destination) => {
   return (`<option value="${destination}"></option>`);
 };
 
-export const createAddEditTripFormTemplate = (itemsData) => {
+const createAddEditTripFormTemplate = (itemsData) => {
   const isCreateForm = itemsData === undefined;
   if (isCreateForm) {
     itemsData = getRandomArrayItem(days);
@@ -142,3 +143,27 @@ export const createAddEditTripFormTemplate = (itemsData) => {
   </form>`
   );
 };
+
+
+export default class EditTripForm {
+  constructor(day) {
+    this._day = day;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createAddEditTripFormTemplate(this._day);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

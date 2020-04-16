@@ -1,7 +1,8 @@
 import {setPretext} from "../utils.js";
+import {createElement} from "../utils.js";
 
 
-export const createDayElement = (data, elementIndex) => {
+const createDayElement = (data, elementIndex) => {
   const {type, destination, price} = data;
   const startEventTime = data.time[0];
   const endEventTime = data.time[1];
@@ -70,3 +71,28 @@ export const createDayElement = (data, elementIndex) => {
   </li>
       `);
 };
+
+export default class DayItem {
+  constructor(day, index) {
+    this._day = day;
+    this._index = index;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createDayElement(this._day, this._index);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
