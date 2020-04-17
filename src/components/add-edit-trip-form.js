@@ -4,6 +4,7 @@ import {DESTINATIONS_POINT} from "../constants.js";
 import {setPretext} from "../utils.js";
 import {days} from "../main.js";
 import {getRandomArrayItem} from "../utils.js";
+import {createElement} from "../utils.js";
 
 
 const renderOption = (option, price, checked) => {
@@ -36,8 +37,8 @@ const setDestinationOptions = (destination) => {
   return (`<option value="${destination}"></option>`);
 };
 
-export const createAddEditTripFormTemplate = (itemsData) => {
-  const isCreateForm = itemsData === undefined;
+const createAddEditTripFormTemplate = (itemsData) => {
+  const isCreateForm = !itemsData;
   if (isCreateForm) {
     itemsData = getRandomArrayItem(days);
   }
@@ -117,10 +118,10 @@ export const createAddEditTripFormTemplate = (itemsData) => {
                         <span class="visually-hidden">Open event</span>
       </button>`}
     </header>
-    ${ (isCreateForm === false && itemsData.options.length === 0) ? `` :
+    ${ (!isCreateForm && !itemsData.options.length) ? `` :
       `<section class="event__details">
       ${
-    itemsData.options.length > 1 ?
+    itemsData.options.length >= 1 ?
       `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
@@ -142,3 +143,27 @@ export const createAddEditTripFormTemplate = (itemsData) => {
   </form>`
   );
 };
+
+
+export default class EditTripForm {
+  constructor(day) {
+    this._day = day;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createAddEditTripFormTemplate(this._day);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
