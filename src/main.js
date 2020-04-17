@@ -51,6 +51,10 @@ const renderOptions = (element, currentItem) => {
   render(element, new EventOption(currentItem).getElement(), RenderPosition.BEFOREEND);
 };
 
+let currentDay1;
+let currentForm;
+let currentItem1;
+
 
 const renderDayItem = (element, currentDay) => {
   for (let i = 0; i < POINTS_PER_DAY_COUNT; i++) {
@@ -63,7 +67,17 @@ const renderDayItem = (element, currentDay) => {
     const editComponent = new EditTripForm(currentItem);
 
     const onRollUpClick = () => {
-      currentDay.replaceChild(editComponent.getElement(), dayItemComponent.getElement());
+      if (currentForm !== undefined) {
+        currentDay1.replaceChild(currentForm, currentItem1);
+      }
+      currentDay1 = currentDay;
+      console.log(currentDay1);
+      currentForm = editComponent.getElement();
+      console.log(currentForm);
+      currentItem1 = dayItemComponent.getElement();
+      console.log(currentItem1);
+
+      currentDay1.replaceChild(currentForm, currentItem1);
       closeRollup.addEventListener(`click`, onCloseRollupClick);
       editComponent.getElement().addEventListener(`submit`, onEditFormSubmit);
       rollUp.removeEventListener(`click`, onRollUpClick);
