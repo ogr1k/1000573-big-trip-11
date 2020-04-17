@@ -1,4 +1,4 @@
-const ESC_KEY = `Escape`;
+import {tripDaysElement} from "./main.js";
 
 const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
@@ -15,11 +15,6 @@ const findLastElement = (selector, nodeElement = document) => {
   return elements[elements.length - 1];
 };
 
-const isEscEvent = (evt, action) => {
-  if (evt.key === ESC_KEY) {
-    action();
-  }
-};
 
 const setPretext = (element) => {
   if (element === `Check-in` || element === `Restaurant` || element === `Sightseeing`) {
@@ -38,8 +33,10 @@ const createElement = (template) => {
 
 const RenderPosition = {
   AFTERBEGIN: `afterbegin`,
-  BEFOREEND: `beforeend`
+  BEFOREEND: `beforeend`,
+  BEFOREBEGIN: `beforebegin`
 };
+
 
 const render = (container, element, place) => {
   switch (place) {
@@ -49,6 +46,9 @@ const render = (container, element, place) => {
     case RenderPosition.BEFOREEND:
       container.append(element);
       break;
+    case RenderPosition.BEFOREBEGIN:
+      container.insertBefore(element, tripDaysElement);
+      break;
   }
 };
 
@@ -56,7 +56,6 @@ const render = (container, element, place) => {
 export {getRandomArrayItem};
 export {getRandomIntegerNumber};
 export {findLastElement};
-export {isEscEvent};
 export {setPretext};
 export {createElement};
 export {RenderPosition};
