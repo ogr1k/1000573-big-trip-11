@@ -1,4 +1,4 @@
-import {setPretext} from "../utils.js";
+import {setPretext} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
 
 

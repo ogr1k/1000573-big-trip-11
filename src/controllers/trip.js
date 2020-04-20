@@ -7,7 +7,7 @@ import SortTemplate from "../components/sorting.js";
 import NoPointsTemplate from "../components/no-points.js";
 import NewEventButton from "../components/new-event-button.js";
 import {RenderPosition, replace, remove, render} from "../utils/render.js";
-import {getRandomArrayItem} from "../utils.js";
+import {getRandomArrayItem} from "../utils/common.js";
 
 import {SORT_ELEMENTS} from "../constants.js";
 

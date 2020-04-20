@@ -9,7 +9,7 @@ import TripController from "./controllers/trip.js";
 import {generateDays} from "./mock/item.js";
 
 import {RenderPosition, render} from "./utils/render.js";
-import {findLastElement} from "./utils.js";
+import {findLastElement} from "./utils/common.js";
 
 import {NAVIGATION_ELEMENTS} from "../src/constants.js";
 import {FILTER_ELEMENTS} from "../src/constants.js";
@@ -39,7 +39,6 @@ render(test, tripSectionComponent, RenderPosition.BEFOREEND);
 const tripController = new TripController(tripSectionComponent);
 
 tripController.render();
-
 
 const daysListElements = Array.from(document.querySelectorAll(`.trip-events__list`));
 const destination = daysListElements.map((it) => findLastElement(`.destination__item`, it).textContent).join(` &mdash; `);

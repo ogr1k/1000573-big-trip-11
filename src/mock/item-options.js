@@ -1,7 +1,7 @@
 import {TYPES_POINT} from "../constants.js";
 import {OPTIONS} from "../constants.js";
-import {getRandomIntegerNumber} from "../utils.js";
-import {getRandomArrayItem} from "../utils.js";
+import {getRandomIntegerNumber} from "../utils/common.js";
+import {getRandomArrayItem} from "../utils/common.js";
 
 
 let optionsMocks = [];

@@ -1,9 +1,9 @@
 import {TYPES_POINT_TRANSFER} from "../constants.js";
 import {TYPES_POINT_ACTIVITY} from "../constants.js";
 import {DESTINATIONS_POINT} from "../constants.js";
-import {setPretext} from "../utils.js";
+import {setPretext} from "../utils/common.js";
 import {days} from "../main.js";
-import {getRandomArrayItem} from "../utils.js";
+import {getRandomArrayItem} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
 
 
