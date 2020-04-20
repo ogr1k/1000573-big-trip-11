@@ -1,5 +1,5 @@
 import {setPretext} from "../utils.js";
-import {createElement} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 
 const createDayElement = (data, elementIndex) => {
@@ -71,26 +71,21 @@ const createDayElement = (data, elementIndex) => {
   </li>`);
 };
 
-export default class DayItem {
+
+export default class DayItem extends AbstractComponent {
   constructor(day, index) {
+    super();
+
     this._day = day;
     this._index = index;
-
-    this._element = null;
   }
 
   getTemplate() {
     return createDayElement(this._day, this._index);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setOnRollupClick(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, handler);
   }
 }

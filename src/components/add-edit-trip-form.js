@@ -4,7 +4,7 @@ import {DESTINATIONS_POINT} from "../constants.js";
 import {setPretext} from "../utils.js";
 import {days} from "../main.js";
 import {getRandomArrayItem} from "../utils.js";
-import {createElement} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 
 const renderOption = (option, price, checked) => {
@@ -145,25 +145,32 @@ const createAddEditTripFormTemplate = (itemsData) => {
 };
 
 
-export default class EditTripForm {
+export default class EditTripForm extends AbstractComponent {
   constructor(day) {
+    super();
+
     this._day = day;
-    this._element = null;
   }
 
   getTemplate() {
     return createAddEditTripFormTemplate(this._day);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  setOnCloseRollupClick(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, handler);
   }
 
-  removeElement() {
-    this._element = null;
+  removeOnCloseRollupClick(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .removeEventListener(`click`, handler);
+  }
+
+  setOnFormSubmit(handler) {
+    this.getElement().addEventListener(`submit`, handler);
+  }
+
+  removeOnFormSubmit(handler) {
+    this.getElement().removeEventListener(`submit`, handler);
   }
 }
