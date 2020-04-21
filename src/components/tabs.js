@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 const createTabElement = (name, isActive) => {
   return (`<a class="trip-tabs__btn  ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${name}</a>`);
@@ -14,25 +14,14 @@ const createTabsTemplate = (data) => {
 };
 
 
-export default class TabsTemplate {
+export default class TabsTemplate extends AbstractComponent {
   constructor(day) {
+    super();
+
     this._day = day;
-    this._element = null;
   }
 
   getTemplate() {
     return createTabsTemplate(this._day);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

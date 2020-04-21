@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 const createPriceTemplate = () => {
   return (
@@ -9,24 +9,8 @@ const createPriceTemplate = () => {
 };
 
 
-export default class PriceTemplate {
-  constructor() {
-    this._element = null;
-  }
-
+export default class PriceTemplate extends AbstractComponent {
   getTemplate() {
     return createPriceTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

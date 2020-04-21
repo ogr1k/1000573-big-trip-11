@@ -1,5 +1,5 @@
-import {getRandomArrayItem} from "../utils.js";
-import {getRandomIntegerNumber} from "../utils.js";
+import {getRandomArrayItem} from "../utils/common.js";
+import {getRandomIntegerNumber} from "../utils/common.js";
 import {TYPES_POINT} from "../constants.js";
 import {DESTINATIONS_POINT} from "../constants.js";
 import {optionsMocks} from "../mock/item-options.js";

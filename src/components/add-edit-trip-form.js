@@ -1,17 +1,17 @@
 import {TYPES_POINT_TRANSFER} from "../constants.js";
 import {TYPES_POINT_ACTIVITY} from "../constants.js";
 import {DESTINATIONS_POINT} from "../constants.js";
-import {setPretext} from "../utils.js";
+import {setPretext} from "../utils/common.js";
 import {days} from "../main.js";
-import {getRandomArrayItem} from "../utils.js";
-import {createElement} from "../utils.js";
+import {getRandomArrayItem} from "../utils/common.js";
+import AbstractComponent from "./abstract-component.js";
 
 
-const renderOption = (option, price, checked) => {
+const renderOption = (option, price, checked, index) => {
   return (`
             <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${ checked ? `checked` : ``}>
-            <label class="event__offer-label" for="event-offer-luggage-1">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage" ${ checked ? `checked` : ``}>
+            <label class="event__offer-label" for="event-offer-luggage-${index + 1}">
               <span class="event__offer-title">${option}</span>
               &plus;
               &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -42,7 +42,7 @@ const createAddEditTripFormTemplate = (itemsData) => {
   if (isCreateForm) {
     itemsData = getRandomArrayItem(days);
   }
-  const options = itemsData.options.map((it) => renderOption(it.name, it.price, it.isChecked)).join(`\n`);
+  const options = itemsData.options.map((it, index) => renderOption(it.name, it.price, it.isChecked, index)).join(`\n`);
   const images = itemsData.images.map((it) => renderImages(it)).join(`\n`);
   const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it)).join(`\n`);
   const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it)).join(`\n`);
@@ -145,25 +145,32 @@ const createAddEditTripFormTemplate = (itemsData) => {
 };
 
 
-export default class EditTripForm {
+export default class EditTripForm extends AbstractComponent {
   constructor(day) {
+    super();
+
     this._day = day;
-    this._element = null;
   }
 
   getTemplate() {
     return createAddEditTripFormTemplate(this._day);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  setOnCloseRollupClick(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, handler);
   }
 
-  removeElement() {
-    this._element = null;
+  removeOnCloseRollupClick(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .removeEventListener(`click`, handler);
+  }
+
+  setOnFormSubmit(handler) {
+    this.getElement().addEventListener(`submit`, handler);
+  }
+
+  removeOnFormSubmit(handler) {
+    this.getElement().removeEventListener(`submit`, handler);
   }
 }

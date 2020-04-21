@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractComponent from "./abstract-component.js";
 
 
 const createEventOptionElement = (data) => {
@@ -11,26 +11,14 @@ const createEventOptionElement = (data) => {
   </li>`);
 };
 
-
-export default class EventOption {
+export default class EventOption extends AbstractComponent {
   constructor(day) {
+    super();
+
     this._day = day;
-    this._element = null;
   }
 
   getTemplate() {
     return createEventOptionElement(this._day);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
