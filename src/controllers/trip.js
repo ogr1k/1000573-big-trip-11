@@ -18,6 +18,30 @@ const POINTS_PER_DAY_COUNT = 5;
 
 const mainTripElement = document.querySelector(`.trip-main`);
 
+const renderOptions = (element, currentItem) => {
+  render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
+};
+
+const renderDay = (index, action) => {
+  const dayComponent = new DayItemsTemplate(index + 1);
+  const tripDaysElement = document.querySelector(`.trip-days`);
+  render(tripDaysElement, dayComponent, RenderPosition.BEFOREEND);
+  const itemsList = dayComponent.getElement().querySelector(`.trip-events__list`);
+  action(itemsList);
+};
+
+const renderDates = (container, noPointsComponent, action) => {
+
+  if (DAY_COUNT === 0) {
+    render(container, noPointsComponent, RenderPosition.BEFOREEND);
+    return;
+  }
+
+  for (let i = 0; i < DAY_COUNT; i++) {
+    renderDay(i, action);
+  }
+};
+
 
 export default class TripController {
   constructor(container) {
@@ -39,12 +63,10 @@ export default class TripController {
 
     const tripDaysElement = document.querySelector(`.trip-days`);
 
-    const renderOptions = (element, currentItem) => {
-      render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
-    };
 
     let currentOpenedFormComponent;
     let currentItemForReplacementComponent;
+    let createFormElement;
 
     const resetCurrentElements = () => {
       currentOpenedFormComponent = undefined;
@@ -52,29 +74,28 @@ export default class TripController {
       createFormElement = undefined;
     };
 
-    const replaceCurrentEditFormOnDay = () => {
-      replace(currentOpenedFormComponent, currentItemForReplacementComponent);
+    const hideNewEventForm = () => {
+      remove(this._newEditFormComponent);
+      this._newEventButtonComponent.setOnClick(onAddEventButtonClick);
     };
 
-    const checkElementsAndRemove = () => {
+    const checkOpenedFormsAndRemove = () => {
       if (createFormElement) {
-        remove(this._newEditFormComponent);
-        this._newEventButtonComponent.setOnEventButtonClick(onEventButtonClick);
-        resetCurrentElements();
+        hideNewEventForm();
       }
 
       if (currentOpenedFormComponent) {
         replace(currentItemForReplacementComponent, currentOpenedFormComponent);
       }
+      resetCurrentElements();
     };
 
     const onEscKeyDown = (evt) => {
       const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
 
       if (isEscKey) {
-        checkElementsAndRemove();
+        checkOpenedFormsAndRemove();
         document.removeEventListener(`keydown`, onEscKeyDown);
-        resetCurrentElements();
       }
     };
 
@@ -88,9 +109,27 @@ export default class TripController {
 
         const editComponent = new EditTripForm(currentItem);
 
-        const onRollUpClick = () => {
+        const removeListeners = () => {
+          editComponent.removeOnCloseRollupClick(onCloseRollupClick);
+          editComponent.removeOnFormSubmit(onEditFormSubmit);
+        };
 
-          checkElementsAndRemove();
+        const onCloseRollupClick = () => {
+          checkOpenedFormsAndRemove();
+          removeListeners();
+          dayItemComponent.setOnRollupClick(onRollUpClick);
+        };
+
+
+        const onEditFormSubmit = () => {
+          checkOpenedFormsAndRemove();
+          removeListeners();
+          dayItemComponent.setOnRollupClick(onRollUpClick);
+        };
+
+        const onRollUpClick = () => {
+          dayItemComponent.removeOnRollupClick(onRollUpClick);
+          checkOpenedFormsAndRemove();
 
           currentOpenedFormComponent = editComponent;
           currentItemForReplacementComponent = dayItemComponent;
@@ -98,7 +137,7 @@ export default class TripController {
 
           document.addEventListener(`keydown`, onEscKeyDown);
 
-          replaceCurrentEditFormOnDay();
+          replace(currentOpenedFormComponent, currentItemForReplacementComponent);
 
           editComponent.setOnCloseRollupClick(onCloseRollupClick);
           editComponent.setOnFormSubmit(onEditFormSubmit);
@@ -106,58 +145,21 @@ export default class TripController {
 
         dayItemComponent.setOnRollupClick(onRollUpClick);
 
-        const replaceFormOnItem = (evt) => {
-          evt.preventDefault();
-          replace(dayItemComponent, editComponent);
-          editComponent.removeOnCloseRollupClick(onCloseRollupClick);
-          editComponent.removeOnFormSubmit(onEditFormSubmit);
-          dayItemComponent.setOnRollupClick(onRollUpClick);
-          resetCurrentElements();
-        };
-
-        const onCloseRollupClick = (evt) => {
-          replaceFormOnItem(evt);
-        };
-
-
-        const onEditFormSubmit = (evt) => {
-          replaceFormOnItem(evt);
-        };
 
         const optionsContainer = dayItemComponent.getElement().querySelector(`.event__selected-offers`);
         currentItem.options.map((it) => renderOptions(optionsContainer, it)).join(`\n`);
       }
     };
 
-    const renderDay = (index) => {
-      const dayComponent = new DayItemsTemplate(index + 1);
-      render(tripDaysElement, dayComponent, RenderPosition.BEFOREEND);
-      const itemsList = dayComponent.getElement().querySelector(`.trip-events__list`);
-      renderDayItem(itemsList);
-    };
 
-    const renderDates = () => {
+    renderDates(this._container, this._noPointsComponent, renderDayItem);
 
-      if (DAY_COUNT === 0) {
-        render(this._container, this._noPointsComponent, RenderPosition.BEFOREEND);
-        return;
-      }
-
-      for (let i = 0; i < DAY_COUNT; i++) {
-        renderDay(i);
-      }
-    };
-
-    renderDates();
-
-    let createFormElement;
 
     const onCreateFormSubmit = () => {
-      remove(this._newEditFormComponent);
-      this._newEventButtonComponent.setOnEventButtonClick(onEventButtonClick);
+      hideNewEventForm();
     };
 
-    const onEventButtonClick = () => {
+    const onAddEventButtonClick = () => {
       if (currentOpenedFormComponent) {
         replace(currentItemForReplacementComponent, currentOpenedFormComponent);
       }
@@ -166,11 +168,12 @@ export default class TripController {
 
       createFormElement = this._newEditFormComponent.getElement();
 
-      render(this._container.getElement(), this._newEditFormComponent, RenderPosition.BEFOREBEGIN);
-      this._newEventButtonComponent.removeOnEventButtonClick(onEventButtonClick);
-      createFormElement.addEventListener(`submit`, onCreateFormSubmit);
+
+      render(this._container.getElement(), this._newEditFormComponent, RenderPosition.BEFOREBEGIN, tripDaysElement);
+      this._newEventButtonComponent.removeOnClick(onAddEventButtonClick);
+      this._newEditFormComponent.setOnFormSubmit(onCreateFormSubmit);
     };
 
-    this._newEventButtonComponent.setOnEventButtonClick(onEventButtonClick);
+    this._newEventButtonComponent.setOnClick(onAddEventButtonClick);
   }
 }

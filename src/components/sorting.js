@@ -27,13 +27,13 @@ const createSortTemplate = (data) => {
 
 
 export default class SortTemplate extends AbstractComponent {
-  constructor(day) {
+  constructor(sortTypes) {
     super();
 
-    this._day = day;
+    this._sort = sortTypes;
   }
 
   getTemplate() {
-    return createSortTemplate(this._day);
+    return createSortTemplate(this._sort);
   }
 }

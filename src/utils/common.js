@@ -1,3 +1,5 @@
+import {EVENTS_PRETEXTS} from "../constants.js";
+
 const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
 };
@@ -15,11 +17,7 @@ const findLastElement = (selector, nodeElement = document) => {
 
 
 const setPretext = (element) => {
-  if (element === `Check-in` || element === `Restaurant` || element === `Sightseeing`) {
-    return ` in `;
-  } else {
-    return ` to `;
-  }
+  return EVENTS_PRETEXTS[element] || `to`;
 };
 
 

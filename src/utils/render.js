@@ -12,7 +12,7 @@ const RenderPosition = {
 };
 
 
-const render = (container, component, place) => {
+const render = (container, component, place, test) => {
   switch (place) {
     case RenderPosition.AFTERBEGIN:
       container.prepend(component.getElement());
@@ -21,8 +21,7 @@ const render = (container, component, place) => {
       container.append(component.getElement());
       break;
     case RenderPosition.BEFOREBEGIN:
-      const tripDaysElement = document.querySelector(`.trip-days`);
-      container.insertBefore(component.getElement(), tripDaysElement);
+      container.insertBefore(component.getElement(), test);
       break;
   }
 };

@@ -11,8 +11,7 @@ import {generateDays} from "./mock/item.js";
 import {RenderPosition, render} from "./utils/render.js";
 import {findLastElement} from "./utils/common.js";
 
-import {NAVIGATION_ELEMENTS} from "../src/constants.js";
-import {FILTER_ELEMENTS} from "../src/constants.js";
+import {NAVIGATION_ELEMENTS, FILTER_ELEMENTS} from "../src/constants.js";
 
 const POINTS_COUNT = 15;
 
@@ -31,10 +30,9 @@ const filtersContanerElement = document.querySelector(`.trip-controls`);
 render(filtersContanerElement, new TabsTemplate(NAVIGATION_ELEMENTS), RenderPosition.AFTERBEGIN);
 render(filtersContanerElement, new FilterTemplate(FILTER_ELEMENTS), RenderPosition.BEFOREEND);
 
-const mainElement = document.querySelector(`main`);
-const test = mainElement.querySelector(`.page-body__container`);
+const mainContainerElement = document.querySelector(`#js-trip-event`);
 const tripSectionComponent = new TripSectionTemplate();
-render(test, tripSectionComponent, RenderPosition.BEFOREEND);
+render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 const tripController = new TripController(tripSectionComponent);
 

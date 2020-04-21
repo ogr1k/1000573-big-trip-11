@@ -12,11 +12,11 @@ export default class NewEventButton extends AbstractComponent {
     return createNewEventButtonTemplate();
   }
 
-  setOnEventButtonClick(handler) {
+  setOnClick(handler) {
     this.getElement().addEventListener(`click`, handler);
   }
 
-  removeOnEventButtonClick(handler) {
+  removeOnClick(handler) {
     this.getElement().addEventListener(`click`, handler);
   }
 }
