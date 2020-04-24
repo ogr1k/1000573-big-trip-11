@@ -7,8 +7,6 @@ import {RenderPosition, render} from "../utils/render.js";
 import PointController from "./point.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
 
-import {getRandomArrayItem} from "../utils/common.js";
-
 import {SORT_ELEMENTS} from "../constants.js";
 
 const DAY_COUNT = 3;

@@ -5,7 +5,6 @@ import {DESTINATIONS_POINT} from "../constants.js";
 import {optionsMocks} from "../mock/item-options.js";
 
 
-const MIN_OPTIONS_COUNT = 0;
 const MIN_SENTENCES_IMAGES_COUNT = 1;
 const MAX_SENTENCES_IMAGES_COUNT = 5;
 
