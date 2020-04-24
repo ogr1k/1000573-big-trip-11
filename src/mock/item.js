@@ -14,11 +14,12 @@ const mockDescriptionText = `Lorem ipsum dolor sit amet, consectetur adipiscing 
 const generateDayItem = () => {
   const typeElement = getRandomArrayItem(TYPES_POINT);
 
-  const createOptions = () => {
+  const createOptions = (element) => {
     const elements = [];
-    for (let i = 0; i < getRandomIntegerNumber(MIN_OPTIONS_COUNT, MAX_SENTENCES_IMAGES_COUNT); i++) {
-      const optionElement = getRandomArrayItem(optionsMocks);
-      elements.push(optionElement);
+    for (const option of optionsMocks) {
+      if (element === option.type) {
+        elements.push(option);
+      }
     }
     return elements;
   };
@@ -44,11 +45,11 @@ const generateDayItem = () => {
     type: typeElement,
     destination: getRandomArrayItem(DESTINATIONS_POINT),
     price: Math.round(getRandomIntegerNumber(10, 50) / 10) * 10,
-    options: createOptions(),
+    options: createOptions(typeElement),
     description: mockDescriptionText.slice(0, getRandomIntegerNumber(MIN_SENTENCES_IMAGES_COUNT, MAX_SENTENCES_IMAGES_COUNT)).join(`.`),
     images: createImages(),
     time: setTime(),
-    isFavoruite: false
+    isFavourite: false
   };
 };
 

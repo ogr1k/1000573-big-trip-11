@@ -15,8 +15,4 @@ export default class NewEventButton extends AbstractComponent {
   setOnClick(handler) {
     this.getElement().addEventListener(`click`, handler);
   }
-
-  removeOnClick(handler) {
-    this.getElement().addEventListener(`click`, handler);
-  }
 }

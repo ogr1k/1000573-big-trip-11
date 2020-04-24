@@ -4,13 +4,13 @@ import {DESTINATIONS_POINT} from "../constants.js";
 import {setPretext} from "../utils/common.js";
 import {days} from "../main.js";
 import {getRandomArrayItem} from "../utils/common.js";
-import AbstractSmartComponent from "./abstract-component.js";
+import AbstractSmartComponent from "./abstact-smart-components.js";
+import {optionsMocks} from "../mock/item-options.js";
 
-
-const renderOption = (option, price, checked, index) => {
+const renderOption = (option, price, index) => {
   return (`
             <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage" ${ checked ? `checked` : ``}>
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage">
             <label class="event__offer-label" for="event-offer-luggage-${index + 1}">
               <span class="event__offer-title">${option}</span>
               &plus;
@@ -37,21 +37,50 @@ const setDestinationOptions = (destination) => {
   return (`<option value="${destination}"></option>`);
 };
 
-const createAddEditTripFormTemplate = (itemsData, indexForTypes, changes = {}) => {
-  const isCreateForm = !itemsData;
-  if (isCreateForm) {
-    itemsData = getRandomArrayItem(days);
+const firstDigitToUpperCase = (str) => {
+  if (!str) {
+    return str;
   }
 
-  const {type} = changes;
+  return str[0].toUpperCase() + str.slice(1);
+};
+
+const createOptions = (element) => {
+  const elements = [];
+  for (const option of optionsMocks) {
+    if (element === option.type) {
+      elements.push(option);
+    }
+  }
+  return elements;
+};
+
+const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) => {
+  const isCreateForm = !itemsData;
+
+  let type = elements.type;
+
+  if (isCreateForm) {
+    itemsData = getRandomArrayItem(days);
+    type = itemsData.type;
+    indexForTypes = -1;
+  }
 
 
-  const options = itemsData.options.map((it, index) => renderOption(it.name, it.price, it.isChecked, index)).join(`\n`);
+  const typeUpperCase = firstDigitToUpperCase(type);
+
+  const optionsList = createOptions(typeUpperCase);
+
+  let options;
+  if (optionsList.length >= 1) {
+    options = optionsList.map((it, index) => renderOption(it.name, it.price, index)).join(`\n`);
+  }
+
   const images = itemsData.images.map((it) => renderImages(it)).join(`\n`);
   const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it, indexForTypes)).join(`\n`);
   const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it, indexForTypes)).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
-  const pretext = setPretext(itemsData.type);
+  const pretext = setPretext(typeUpperCase);
 
   return (
     `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post">
@@ -59,7 +88,7 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, changes = {}) =
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-${indexForTypes + 1}">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${itemsData.type.toLowerCase()}.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${indexForTypes + 1}" type="checkbox">
 
@@ -80,7 +109,7 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, changes = {}) =
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${type} ${pretext}
+          ${typeUpperCase} ${pretext}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${itemsData.destination}" list="destination-list-1">
         <datalist id="destination-list-1">
@@ -122,10 +151,10 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, changes = {}) =
                         <span class="visually-hidden">Open event</span>
       </button>`}
     </header>
-    ${ (!isCreateForm && !itemsData.options.length) ? `` :
+    ${ (!isCreateForm && optionsList.length < 1) ? `` :
       `<section class="event__details">
       ${
-    itemsData.options.length >= 1 ?
+    optionsList.length >= 1 ?
       `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
@@ -157,7 +186,10 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._index = index;
 
     this._handler = null;
-    this._type = day.type;
+
+    if (day) {
+      this._type = day.type;
+    }
 
     this.setOnEventsListClick();
   }
@@ -166,15 +198,21 @@ export default class EditTripForm extends AbstractSmartComponent {
     super.rerender();
   }
 
+  reset() {
+    this.rerender();
+  }
+
   getTemplate() {
     return createAddEditTripFormTemplate(this._day, this._index, {
       type: this._type
     });
   }
 
-  // recoveryListeners() {
-
-  // }
+  recoveryListeners() {
+    this.setOnCloseRollupClick(this._handler);
+    this.setOnFormSubmit(this._handler);
+    this.setOnEventsListClick();
+  }
 
   setOnCloseRollupClick(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
@@ -196,8 +234,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   setOnEventsListClick() {
     this.getElement().querySelector(`.event__type-list`).addEventListener(`click`, (evt) => {
       this._type = evt.target.innerText;
-      console.log(this._type);
-      console.log(this._day.type);
+
       this.rerender();
     });
   }
