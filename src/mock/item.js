@@ -47,7 +47,8 @@ const generateDayItem = () => {
     options: createOptions(),
     description: mockDescriptionText.slice(0, getRandomIntegerNumber(MIN_SENTENCES_IMAGES_COUNT, MAX_SENTENCES_IMAGES_COUNT)).join(`.`),
     images: createImages(),
-    time: setTime()
+    time: setTime(),
+    isFavoruite: false
   };
 };
 

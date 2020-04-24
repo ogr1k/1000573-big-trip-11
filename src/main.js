@@ -36,7 +36,7 @@ render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 const tripController = new TripController(tripSectionComponent);
 
-tripController.render();
+tripController.render(days);
 
 const daysListElements = Array.from(document.querySelectorAll(`.trip-events__list`));
 const destination = daysListElements.map((it) => findLastElement(`.destination__item`, it).textContent).join(` &mdash; `);

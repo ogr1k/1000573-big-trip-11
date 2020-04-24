@@ -4,7 +4,7 @@ import {DESTINATIONS_POINT} from "../constants.js";
 import {setPretext} from "../utils/common.js";
 import {days} from "../main.js";
 import {getRandomArrayItem} from "../utils/common.js";
-import AbstractComponent from "./abstract-component.js";
+import AbstractSmartComponent from "./abstract-component.js";
 
 
 const renderOption = (option, price, checked, index) => {
@@ -20,11 +20,11 @@ const renderOption = (option, price, checked, index) => {
       `);
 };
 
-const setTypes = (type) => {
+const setTypes = (type, indexForTypes) => {
   return (`
     <div class="event__type-item">
-    <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-    <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+    <input id="event-type-${type}-${indexForTypes + 1}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+    <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${indexForTypes + 1}">${type}</label>
     </div>
   `);
 };
@@ -37,15 +37,19 @@ const setDestinationOptions = (destination) => {
   return (`<option value="${destination}"></option>`);
 };
 
-const createAddEditTripFormTemplate = (itemsData) => {
+const createAddEditTripFormTemplate = (itemsData, indexForTypes, changes = {}) => {
   const isCreateForm = !itemsData;
   if (isCreateForm) {
     itemsData = getRandomArrayItem(days);
   }
+
+  const {type} = changes;
+
+
   const options = itemsData.options.map((it, index) => renderOption(it.name, it.price, it.isChecked, index)).join(`\n`);
   const images = itemsData.images.map((it) => renderImages(it)).join(`\n`);
-  const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it)).join(`\n`);
-  const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it)).join(`\n`);
+  const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it, indexForTypes)).join(`\n`);
+  const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it, indexForTypes)).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
   const pretext = setPretext(itemsData.type);
 
@@ -53,11 +57,11 @@ const createAddEditTripFormTemplate = (itemsData) => {
     `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
-        <label class="event__type  event__type-btn" for="event-type-toggle-1">
+        <label class="event__type  event__type-btn" for="event-type-toggle-${indexForTypes + 1}">
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${itemsData.type.toLowerCase()}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${indexForTypes + 1}" type="checkbox">
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -76,7 +80,7 @@ const createAddEditTripFormTemplate = (itemsData) => {
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${itemsData.type} ${pretext}
+          ${type} ${pretext}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${itemsData.destination}" list="destination-list-1">
         <datalist id="destination-list-1">
@@ -106,7 +110,7 @@ const createAddEditTripFormTemplate = (itemsData) => {
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
       <button class="event__reset-btn" type="reset">${isCreateForm ? `Cancel` : `Delete`}</button>
-      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked=""></input>
+      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${itemsData.isFavourite ? `checked` : ``}></input>
       <label class="event__favorite-btn" for="event-favorite-1">
                         <span class="visually-hidden">Add to favorite</span>
                         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -145,32 +149,56 @@ const createAddEditTripFormTemplate = (itemsData) => {
 };
 
 
-export default class EditTripForm extends AbstractComponent {
-  constructor(day) {
+export default class EditTripForm extends AbstractSmartComponent {
+  constructor(day, index) {
     super();
 
     this._day = day;
+    this._index = index;
+
+    this._handler = null;
+    this._type = day.type;
+
+    this.setOnEventsListClick();
+  }
+
+  rerender() {
+    super.rerender();
   }
 
   getTemplate() {
-    return createAddEditTripFormTemplate(this._day);
+    return createAddEditTripFormTemplate(this._day, this._index, {
+      type: this._type
+    });
   }
+
+  // recoveryListeners() {
+
+  // }
 
   setOnCloseRollupClick(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
-  }
 
-  removeOnCloseRollupClick(handler) {
-    this.getElement().querySelector(`.event__rollup-btn`)
-      .removeEventListener(`click`, handler);
+    this._handler = handler;
   }
 
   setOnFormSubmit(handler) {
     this.getElement().addEventListener(`submit`, handler);
+
+    this._handler = handler;
   }
 
-  removeOnFormSubmit(handler) {
-    this.getElement().removeEventListener(`submit`, handler);
+  setOnFavClick(handler) {
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, handler);
+  }
+
+  setOnEventsListClick() {
+    this.getElement().querySelector(`.event__type-list`).addEventListener(`click`, (evt) => {
+      this._type = evt.target.innerText;
+      console.log(this._type);
+      console.log(this._day.type);
+      this.rerender();
+    });
   }
 }
