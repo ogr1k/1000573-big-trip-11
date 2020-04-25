@@ -14,11 +14,10 @@ const POINTS_PER_DAY_COUNT = 5;
 
 const mainTripElement = document.querySelector(`.trip-main`);
 
-const renderDayItem = (container, days, onDataChange, daysIndex, onViewChange) => {
-  return days.map((item, index) => {
+const renderDayItem = (container, days, onDataChange, onViewChange) => {
+  return days.map((item) => {
     const pointController = new PointController(container, onDataChange, onViewChange);
-    const indexForTypes = index + daysIndex;
-    pointController.render(item, indexForTypes);
+    pointController.render(item);
 
     return pointController;
   });
@@ -70,7 +69,7 @@ export default class TripController {
       const itemsList = dayComponent.getElement().querySelector(`.trip-events__list`);
       const calculatedIndex = index * POINTS_PER_DAY_COUNT;
       const daysList = elements.slice(calculatedIndex, calculatedIndex + POINTS_PER_DAY_COUNT);
-      const newPoints = renderDayItem(itemsList, daysList, this._onDataChange, calculatedIndex, this._onViewChange);
+      const newPoints = renderDayItem(itemsList, daysList, this._onDataChange, this._onViewChange);
       this._showedPointControllers = this._showedPointControllers.concat(newPoints);
     };
 

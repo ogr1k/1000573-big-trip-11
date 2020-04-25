@@ -80,7 +80,7 @@ const checkIsValidDestination = (element) => {
   return false;
 };
 
-const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) => {
+const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const isCreateForm = !itemsData;
 
   let type = elements.type;
@@ -106,8 +106,8 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
   if (destination) {
     images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
   }
-  const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it, indexForTypes)).join(`\n`);
-  const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it, indexForTypes)).join(`\n`);
+  const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it)).join(`\n`);
+  const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it)).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
   const pretext = setPretext(typeUpperCase);
 
@@ -115,11 +115,11 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
     `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
-        <label class="event__type  event__type-btn" for="event-type-toggle-${indexForTypes + 1}">
+        <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${indexForTypes + 1}" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -166,7 +166,7 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
         <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isCreateForm ? ` ` : `${itemsData.price}` }">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidDestination && (destination) ? `` : `disabled`}>Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidDestination ? `` : `disabled`}>Save</button>
       <button class="event__reset-btn" type="reset">${isCreateForm ? `Cancel` : `Delete`}</button>
       ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${itemsData.isFavourite ? `checked` : ``}></input>
       <label class="event__favorite-btn" for="event-favorite-1">
@@ -189,11 +189,10 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
 
 
 export default class EditTripForm extends AbstractSmartComponent {
-  constructor(day, index) {
+  constructor(day) {
     super();
 
     this._day = day;
-    this._index = index;
 
     this._clickHandler = null;
     this._submitHandler = null;
@@ -222,7 +221,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createAddEditTripFormTemplate(this._day, this._index, {
+    return createAddEditTripFormTemplate(this._day, {
       type: this._type,
       destination: this._destination
     });

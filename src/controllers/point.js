@@ -27,12 +27,12 @@ export default class PointController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(day, index) {
+  render(day) {
     const oldPointComponent = this._pointComponent;
     const oldPointEditComponent = this._pointEditComponent;
 
     this._pointComponent = new DayItem(day);
-    this._pointEditComponent = new EditTripForm(day, index);
+    this._pointEditComponent = new EditTripForm(day);
 
     if (oldPointComponent && oldPointEditComponent) {
       replace(this._pointComponent, oldPointComponent);
