@@ -2,7 +2,6 @@ import {RenderPosition, replace, render} from "../utils/render.js";
 import DayItem from "../components/points-element.js";
 import EventOption from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
-import NewEventButton from "../components/new-event-button.js";
 
 const Mode = {
   DEFAULT: `default`,
@@ -20,7 +19,6 @@ export default class PointController {
 
     this._pointComponent = null;
     this._pointEditComponent = null;
-    this._newEventButtonComponent = null;
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
@@ -35,7 +33,6 @@ export default class PointController {
 
     this._pointComponent = new DayItem(day);
     this._pointEditComponent = new EditTripForm(day, index);
-    this._newEventButtonComponent = new NewEventButton();
 
     if (oldPointComponent && oldPointEditComponent) {
       replace(this._pointComponent, oldPointComponent);
@@ -54,6 +51,7 @@ export default class PointController {
       this._replaceEditToPoint();
       this._pointComponent.setOnRollupClick(onRollUpClick);
     };
+
 
     const onRollUpClick = () => {
       this._replacePointToEdit();
@@ -77,7 +75,13 @@ export default class PointController {
     });
   }
 
+
   setDefaultView() {
+    const createFormElement = document.querySelector(`.event--create`);
+    if (createFormElement) {
+      createFormElement.remove();
+    }
+
     if (this._mode !== Mode.DEFAULT) {
       this._replaceEditToPoint();
     }

@@ -11,7 +11,7 @@ import {generateDays} from "./mock/item.js";
 import {RenderPosition, render} from "./utils/render.js";
 import {findLastElement} from "./utils/common.js";
 
-import {NAVIGATION_ELEMENTS, FILTER_ELEMENTS} from "../src/constants.js";
+import {NAVIGATION_ELEMENTS, FILTER_ELEMENTS} from "./constants.js";
 
 const POINTS_COUNT = 15;
 

@@ -15,6 +15,7 @@ const Events = {
   Flight: `Flight`
 };
 
+
 export const EVENTS_PRETEXTS = {
   [Events.CheckIn]: `in`,
   [Events.Restaurant]: `in`,

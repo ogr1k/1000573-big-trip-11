@@ -3,7 +3,7 @@ import TripDaysListTemplate from "../components/days-list.js";
 import SortTemplate from "../components/sorting.js";
 import NoPointsTemplate from "../components/no-points.js";
 import NewEventButton from "../components/new-event-button.js";
-import {RenderPosition, render} from "../utils/render.js";
+import {RenderPosition, render, remove} from "../utils/render.js";
 import PointController from "./point.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
 
@@ -40,6 +40,8 @@ export default class TripController {
     this._daysComponent = new TripDaysListTemplate();
     this._newEventButtonComponent = new NewEventButton();
     this._noPointsComponent = new NoPointsTemplate();
+
+    this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
   render(points) {
@@ -50,8 +52,14 @@ export default class TripController {
     const tripDaysElement = document.querySelector(`.trip-days`);
 
     const onNewEventButtonClick = () => {
+      const pointEditComponent = new EditTripForm();
       this._onViewChange();
-      render(this._container.getElement(), new EditTripForm(), RenderPosition.BEFOREBEGIN, tripDaysElement);
+      document.addEventListener(`keydown`, this._onEscKeyDown);
+      render(this._container.getElement(), pointEditComponent, RenderPosition.BEFOREBEGIN, tripDaysElement);
+      pointEditComponent.setOnFormSubmit(() => {
+        remove(pointEditComponent);
+        document.removeEventListener(`keydown`, this._onEscKeyDown.bind(pointEditComponent));
+      });
     };
 
     this._newEventButtonComponent.setOnClick(onNewEventButtonClick);
@@ -95,5 +103,15 @@ export default class TripController {
 
   _onViewChange() {
     this._showedPointControllers.forEach((it) => it.setDefaultView());
+  }
+
+  _onEscKeyDown(evt) {
+    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
+
+    if (isEscKey) {
+      const createFormElement = document.querySelector(`.event--create`);
+      createFormElement.remove();
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
+    }
   }
 }

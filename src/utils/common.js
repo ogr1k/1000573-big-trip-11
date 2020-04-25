@@ -20,8 +20,14 @@ const setPretext = (element) => {
   return EVENTS_PRETEXTS[element] || `to`;
 };
 
+const createOptions = (element, mocks) => {
+  const elements = mocks.filter((option) => element === option.type);
+
+  return elements;
+};
 
 export {getRandomArrayItem};
 export {getRandomIntegerNumber};
 export {findLastElement};
 export {setPretext};
+export {createOptions};
