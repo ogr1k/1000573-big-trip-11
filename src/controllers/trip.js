@@ -110,7 +110,9 @@ export default class TripController {
 
     if (isEscKey) {
       const createFormElement = document.querySelector(`.event--create`);
-      createFormElement.remove();
+      if (createFormElement) {
+        createFormElement.remove();
+      }
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
   }

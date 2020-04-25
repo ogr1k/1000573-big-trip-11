@@ -7,6 +7,30 @@ import AbstractSmartComponent from "./abstact-smart-components.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
 
+const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createFormFlag, createdImages) => {
+  return (`<section class="event__details">
+      ${
+    optionsList.length >= 1 ?
+      `<section class="event__section  event__section--offers">
+        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+        <div class="event__available-offers">
+        ${createdOptions}
+        </div>
+      </section>` : `` }
+
+      ${destination ? `<section class="event__section  event__section--destination">
+        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+        <p class="event__destination-description">${descriptionMocks[destination]}</p>
+
+        <div class="event__photos-container">
+          <div class="event__photos-tape">
+          ${ createFormFlag && !destination ? `` : `${createdImages}`}
+          </div>
+        </div>
+      </section>` : ``}
+    </section>`);
+};
+
 const renderOption = (option, price, index) => {
   return (`
             <div class="event__offer-selector">
@@ -46,9 +70,11 @@ const transformFirstLetterToUpperCase = (str) => {
 };
 
 const checkIsValidDestination = (element) => {
-  for (const point of DESTINATIONS_POINT) {
-    if (element === point) {
-      return true;
+  if (element) {
+    for (const point of DESTINATIONS_POINT) {
+      if (element === point) {
+        return true;
+      }
     }
   }
   return false;
@@ -60,11 +86,8 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
   let type = elements.type;
   const destination = elements.destination;
 
-  let isRerenderedCreateForm = false;
-
   if (isCreateForm && !type) {
     type = `bus`;
-    isRerenderedCreateForm = true;
   }
 
 
@@ -78,10 +101,6 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
   }
 
   let isValidDestination = checkIsValidDestination(destination);
-
-  if (!destination) {
-    isValidDestination = true;
-  }
 
   let images;
   if (destination) {
@@ -147,7 +166,7 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
         <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isCreateForm ? ` ` : `${itemsData.price}` }">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidDestination ? `` : `disabled`}>Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidDestination && (destination) ? `` : `disabled`}>Save</button>
       <button class="event__reset-btn" type="reset">${isCreateForm ? `Cancel` : `Delete`}</button>
       ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${itemsData.isFavourite ? `checked` : ``}></input>
       <label class="event__favorite-btn" for="event-favorite-1">
@@ -162,27 +181,8 @@ const createAddEditTripFormTemplate = (itemsData, indexForTypes, elements = {}) 
       </button>`}
     </header>
 
-    ${ isCreateForm && !destination && isRerenderedCreateForm && optionsList.length < 1 ? `` : `${ isValidDestination ? `<section class="event__details">
-      ${
-    optionsList.length >= 1 ?
-      `<section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-        <div class="event__available-offers">
-        ${options}
-        </div>
-      </section>` : `` }
-
-      ${destination ? `<section class="event__section  event__section--destination">
-        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${descriptionMocks[destination]}</p>
-
-        <div class="event__photos-container">
-          <div class="event__photos-tape">
-          ${ isCreateForm && !destination ? `` : `${images}`}
-          </div>
-        </div>
-      </section>` : ``}
-    </section>` : ``}`}
+    ${ !isValidDestination && optionsList.length < 1 ? `` :
+      getOptionsAndDestinationTemplate(optionsList, options, destination, isCreateForm, images)}
   </form>`
   );
 };
