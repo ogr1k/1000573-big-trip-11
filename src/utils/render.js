@@ -12,7 +12,7 @@ const RenderPosition = {
 };
 
 
-const render = (container, component, place, test) => {
+const render = (container, component, place, referenceElement) => {
   switch (place) {
     case RenderPosition.AFTERBEGIN:
       container.prepend(component.getElement());
@@ -21,7 +21,7 @@ const render = (container, component, place, test) => {
       container.append(component.getElement());
       break;
     case RenderPosition.BEFOREBEGIN:
-      container.insertBefore(component.getElement(), test);
+      container.insertBefore(component.getElement(), referenceElement);
       break;
   }
 };

@@ -2,15 +2,39 @@ import {TYPES_POINT_TRANSFER} from "../constants.js";
 import {TYPES_POINT_ACTIVITY} from "../constants.js";
 import {DESTINATIONS_POINT} from "../constants.js";
 import {setPretext} from "../utils/common.js";
-import {days} from "../main.js";
-import {getRandomArrayItem} from "../utils/common.js";
-import AbstractComponent from "./abstract-component.js";
+import {createOptions} from "../utils/common.js";
+import AbstractSmartComponent from "./abstact-smart-components.js";
+import {optionsMocks} from "../mock/item-options.js";
+import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
 
+const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createFormFlag, createdImages) => {
+  return (`<section class="event__details">
+      ${
+    optionsList.length >= 1 ?
+      `<section class="event__section  event__section--offers">
+        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+        <div class="event__available-offers">
+        ${createdOptions}
+        </div>
+      </section>` : `` }
 
-const renderOption = (option, price, checked, index) => {
+      ${destination ? `<section class="event__section  event__section--destination">
+        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+        <p class="event__destination-description">${descriptionMocks[destination]}</p>
+
+        <div class="event__photos-container">
+          <div class="event__photos-tape">
+          ${ createFormFlag && !destination ? `` : `${createdImages}`}
+          </div>
+        </div>
+      </section>` : ``}
+    </section>`);
+};
+
+const renderOption = (option, price, index) => {
   return (`
             <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage" ${ checked ? `checked` : ``}>
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage">
             <label class="event__offer-label" for="event-offer-luggage-${index + 1}">
               <span class="event__offer-title">${option}</span>
               &plus;
@@ -37,17 +61,55 @@ const setDestinationOptions = (destination) => {
   return (`<option value="${destination}"></option>`);
 };
 
-const createAddEditTripFormTemplate = (itemsData) => {
-  const isCreateForm = !itemsData;
-  if (isCreateForm) {
-    itemsData = getRandomArrayItem(days);
+const transformFirstLetterToUpperCase = (str) => {
+  if (!str) {
+    return str;
   }
-  const options = itemsData.options.map((it, index) => renderOption(it.name, it.price, it.isChecked, index)).join(`\n`);
-  const images = itemsData.images.map((it) => renderImages(it)).join(`\n`);
+
+  return str[0].toUpperCase() + str.slice(1);
+};
+
+const checkIsValidDestination = (element) => {
+  if (element) {
+    for (const point of DESTINATIONS_POINT) {
+      if (element === point) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
+  const isCreateForm = !itemsData;
+
+  let type = elements.type;
+  const destination = elements.destination;
+
+  if (isCreateForm && !type) {
+    type = `bus`;
+  }
+
+
+  const typeUpperCase = transformFirstLetterToUpperCase(type);
+
+  const optionsList = createOptions(typeUpperCase, optionsMocks);
+
+  let options;
+  if (optionsList.length >= 1) {
+    options = optionsList.map((it, index) => renderOption(it.name, it.price, index)).join(`\n`);
+  }
+
+  let isValidDestination = checkIsValidDestination(destination);
+
+  let images;
+  if (destination) {
+    images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
+  }
   const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it)).join(`\n`);
   const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it)).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
-  const pretext = setPretext(itemsData.type);
+  const pretext = setPretext(typeUpperCase);
 
   return (
     `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post">
@@ -55,7 +117,7 @@ const createAddEditTripFormTemplate = (itemsData) => {
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${itemsData.type.toLowerCase()}.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -76,9 +138,9 @@ const createAddEditTripFormTemplate = (itemsData) => {
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${itemsData.type} ${pretext}
+          ${typeUpperCase} ${pretext}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${itemsData.destination}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCreateForm && !destination ? `` : `${destination}`}" list="destination-list-1">
         <datalist id="destination-list-1">
         ${destinationOptions}
         </datalist>
@@ -101,12 +163,12 @@ const createAddEditTripFormTemplate = (itemsData) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${itemsData.price}">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isCreateForm ? ` ` : `${itemsData.price}` }">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidDestination ? `` : `disabled`}>Save</button>
       <button class="event__reset-btn" type="reset">${isCreateForm ? `Cancel` : `Delete`}</button>
-      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked=""></input>
+      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${itemsData.isFavourite ? `checked` : ``}></input>
       <label class="event__favorite-btn" for="event-favorite-1">
                         <span class="visually-hidden">Add to favorite</span>
                         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -118,59 +180,91 @@ const createAddEditTripFormTemplate = (itemsData) => {
                         <span class="visually-hidden">Open event</span>
       </button>`}
     </header>
-    ${ (!isCreateForm && !itemsData.options.length) ? `` :
-      `<section class="event__details">
-      ${
-    itemsData.options.length >= 1 ?
-      `<section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-        <div class="event__available-offers">
-        ${options}
-        </div>
-      </section>` : `` }
 
-      ${isCreateForm ? `<section class="event__section  event__section--destination">
-        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${itemsData.description}</p>
-
-        <div class="event__photos-container">
-          <div class="event__photos-tape">
-          ${images}
-          </div>
-        </div>
-      </section>` : ``}
-    </section>` }
+    ${ !isValidDestination && optionsList.length < 1 ? `` :
+      getOptionsAndDestinationTemplate(optionsList, options, destination, isCreateForm, images)}
   </form>`
   );
 };
 
 
-export default class EditTripForm extends AbstractComponent {
+export default class EditTripForm extends AbstractSmartComponent {
   constructor(day) {
     super();
 
     this._day = day;
+
+    this._clickHandler = null;
+    this._submitHandler = null;
+
+    if (day) {
+      this._type = day.type;
+      this._destination = day.destination;
+    }
+
+
+    this.setOnEventsListClick();
+    this.setOnDestinationInputChange();
+  }
+
+  rerender() {
+    super.rerender();
+  }
+
+  reset() {
+    const day = this._day;
+
+    this._type = day.type;
+    this._destination = day.destination;
+
+    this.rerender();
   }
 
   getTemplate() {
-    return createAddEditTripFormTemplate(this._day);
+    return createAddEditTripFormTemplate(this._day, {
+      type: this._type,
+      destination: this._destination
+    });
+  }
+
+  recoveryListeners() {
+    const flagElement = document.querySelector(`.event--create`);
+    if (flagElement === null) {
+      this.setOnCloseRollupClick(this._clickHandler);
+    }
+
+    this.setOnFormSubmit(this._submitHandler);
+    this.setOnEventsListClick();
+    this.setOnDestinationInputChange();
   }
 
   setOnCloseRollupClick(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
-  }
-
-  removeOnCloseRollupClick(handler) {
-    this.getElement().querySelector(`.event__rollup-btn`)
-      .removeEventListener(`click`, handler);
+    this._clickHandler = handler;
   }
 
   setOnFormSubmit(handler) {
     this.getElement().addEventListener(`submit`, handler);
+
+    this._submitHandler = handler;
   }
 
-  removeOnFormSubmit(handler) {
-    this.getElement().removeEventListener(`submit`, handler);
+  setOnFavClick(handler) {
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, handler);
+  }
+
+  setOnEventsListClick() {
+    this.getElement().querySelector(`.event__type-list`).addEventListener(`click`, (evt) => {
+      this._type = evt.target.innerText;
+      this.rerender();
+    });
+  }
+
+  setOnDestinationInputChange() {
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
+      this._destination = evt.target.value;
+      this.rerender();
+    });
   }
 }
