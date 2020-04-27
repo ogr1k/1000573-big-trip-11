@@ -4,8 +4,14 @@ import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "./item-description-images.js";
 import moment from "moment";
 
+const MAX_MINUTES_DIFFERENCE = 500;
+const MIN_MINUTES_DIFFERENCE = 1;
+
 const getDate = () => {
-  return moment(new Date(2020, 3, 27, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
+  const startTime = moment(new Date(2020, 3, 27, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
+  const endTime = moment(startTime).add(getRandomIntegerNumber(MIN_MINUTES_DIFFERENCE, MAX_MINUTES_DIFFERENCE), `minutes`);
+
+  return [startTime, endTime];
 };
 
 

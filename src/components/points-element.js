@@ -1,9 +1,7 @@
-import {setPretext, formatTime, getRandomIntegerNumber} from "../utils/common.js";
+import {setPretext, formatTime} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
 import moment from "moment";
 
-const MAX_MINUTES_DIFFERENCE = 500;
-const MIN_MINUTES_DIFFERENCE = 1;
 
 const NOT_VALID_CASES = [`0D`, `00H`, `00M`];
 
@@ -31,8 +29,8 @@ const getFinalDifferenceResult = (startTime, endTime) => {
 const createDayElement = (data, elementIndex) => {
   const {type, destination, price} = data;
 
-  const startTime = data.date;
-  const endTime = moment(startTime).add(getRandomIntegerNumber(MIN_MINUTES_DIFFERENCE, MAX_MINUTES_DIFFERENCE), `minutes`);
+  const startTime = data.date[0];
+  const endTime = data.date[1];
   const formattedStartTime = formatTime(startTime);
   const formattedEndTime = formatTime(endTime);
   const differenceResult = getFinalDifferenceResult(startTime, endTime);
