@@ -1,40 +1,42 @@
-import {setPretext} from "../utils/common.js";
+import {setPretext, formatTime} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
+import moment from "moment";
+import {getRandomIntegerNumber} from "../utils/common.js";
 
+const MAX_MINUTES_DIFFERENCE = 500;
+const MIN_MINUTES_DIFFERENCE = 1;
+
+const NOT_VALID_CASES = [`0D`, `00H`, `00M`];
+
+const getFinalDifferenceResult = (startTime, endTime) => {
+  const duration = moment.duration(endTime.diff(startTime));
+
+  const daysDifferenceDuration = moment.duration(duration).days();
+  const differenceResult = moment.utc(duration.asMilliseconds()).format(`${daysDifferenceDuration}[D] HH[H] mm[M]`);
+
+  const resultToString = differenceResult.split(` `);
+
+  const checkValid = () => {
+    let resultString = ``;
+    for (let i = 0; i < resultToString.length; i++) {
+      if (NOT_VALID_CASES[i] !== resultToString[i]) {
+        resultString += `${resultToString[i]} `;
+      }
+    }
+    return resultString;
+  };
+
+  return (checkValid());
+};
 
 const createDayElement = (data, elementIndex) => {
   const {type, destination, price} = data;
-  const startEventTime = data.time[0];
-  const endEventTime = data.time[1];
 
-  let result;
-
-  const findTimeDifference = () => {
-    const different = (endEventTime - startEventTime);
-
-    const hours = Math.floor((different % 86400000) / 3600000);
-    const minutes = Math.round(((different % 86400000) % 3600000) / 60000);
-    result = `${hours}H ${minutes}M`;
-  };
-
-  findTimeDifference();
-
-  const getStringHours = (element) => {
-    return element.getHours()
-                  .toString();
-  };
-
-  const getStringMinutes = (element) => {
-    return element.getMinutes()
-                  .toString();
-  };
-
-
-  const startEventHours = getStringHours(startEventTime);
-  const startEventMinutes = getStringMinutes(startEventTime);
-  const endEventHours = getStringHours(endEventTime);
-  const endEventMinutes = getStringMinutes(endEventTime);
-
+  const startTime = data.date;
+  const endTime = moment(startTime).add(getRandomIntegerNumber(MIN_MINUTES_DIFFERENCE, MAX_MINUTES_DIFFERENCE), `minutes`);
+  const formattedStartTime = formatTime(startTime);
+  const formattedEndTime = formatTime(endTime);
+  const differenceResult = getFinalDifferenceResult(startTime, endTime);
 
   setPretext(type);
 
@@ -49,11 +51,11 @@ const createDayElement = (data, elementIndex) => {
 
         <div class="event__schedule">
             <p class="event__time">
-                <time class="event__start-time" datetime="${startEventTime.toISOString()}"> ${startEventHours.length === 1 ? `0` : ``}${startEventHours}:${startEventMinutes.length === 1 ? `0` : ``}${startEventMinutes}</time>
+                <time class="event__start-time" datetime="${formattedStartTime}">${formattedStartTime}</time>
                 &mdash;
-                <time class="event__end-time" datetime="${endEventTime.toISOString()}">${endEventHours.length === 1 ? `0` : ``}${endEventHours}:${endEventMinutes.length === 1 ? `0` : ``}${endEventMinutes}</time>
+                <time class="event__end-time" datetime="${formattedEndTime}">${formattedEndTime}</time>
             </p>
-            <p class="event__duration">${result}</p>
+            <p class="event__duration">${differenceResult}</p>
         </div>
 
         <p class="event__price">

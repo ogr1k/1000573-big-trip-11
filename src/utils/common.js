@@ -10,6 +10,10 @@ const getRandomArrayItem = (array) => {
   return array[randomIndex];
 };
 
+const formatTime = (date) => {
+  return date.format(`HH:mm`);
+};
+
 const findLastElement = (selector, nodeElement = document) => {
   const elements = nodeElement.querySelectorAll(selector);
   return elements[elements.length - 1];
@@ -31,3 +35,4 @@ export {getRandomIntegerNumber};
 export {findLastElement};
 export {setPretext};
 export {createOptions};
+export {formatTime};

@@ -1,8 +1,5 @@
-import {TYPES_POINT_TRANSFER} from "../constants.js";
-import {TYPES_POINT_ACTIVITY} from "../constants.js";
-import {DESTINATIONS_POINT} from "../constants.js";
-import {setPretext} from "../utils/common.js";
-import {createOptions} from "../utils/common.js";
+import {TYPES_POINT_TRANSFER, TYPES_POINT_ACTIVITY, DESTINATIONS_POINT} from "../constants.js";
+import {setPretext, formatTime, createOptions} from "../utils/common.js";
 import AbstractSmartComponent from "./abstact-smart-components.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
@@ -86,9 +83,6 @@ const checkIsValidDestination = (element) => {
 const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const isCreateForm = !itemsData;
 
-  // const date = itemsData.date;
-  // const time = itemsData.time;
-
   let type = elements.type;
   const destination = elements.destination;
 
@@ -156,7 +150,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
         <label class="visually-hidden" for="event-start-time-1">
           From
         </label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${ isCreateForm ? `` : `${formatTime(itemsData.date)}`}">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">
           To
@@ -235,14 +229,19 @@ export default class EditTripForm extends AbstractSmartComponent {
     }
 
     const dateElements = this.getElement().querySelectorAll(`.event__input--time`);
+
+    const flatpickrSettings = {
+      altInput: true,
+      altFormat: `d/m/y H:i`,
+      dateFormat: `d/m/y H:i`,
+      defaultDate: `today`,
+      enableTime: true,
+      minDate: `today`,
+      time_24hr: true
+    };
+
     dateElements.forEach((element) => {
-      this._flatpickr = flatpickr(element, {
-        dateFormat: `d/m/y H:i`,
-        allowInput: true,
-        defaultDate: `today`,
-        enableTime: true,
-        minDate: `today`
-      });
+      this._flatpickr = flatpickr(element, flatpickrSettings);
     });
   }
 
