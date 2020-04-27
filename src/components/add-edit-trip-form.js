@@ -236,9 +236,7 @@ export default class EditTripForm extends AbstractSmartComponent {
       altFormat: `d/m/y H:i`,
       dateFormat: `d/m/y H:i`,
       defaultDate: `today`,
-      enableTime: true,
       minDate: `today`,
-      time_24hr: true
     };
 
     dateElements.forEach((element) => {
