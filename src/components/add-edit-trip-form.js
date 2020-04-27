@@ -206,6 +206,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._applyFlatpickr();
     this.setOnEventsListClick();
     this.setOnDestinationInputChange();
+    this.setOnDateInputed();
   }
 
   rerender() {
@@ -223,7 +224,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   _applyFlatpickr() {
-    if (this._flatpickr) {
+    if (this._flatpickr && this._flatpickr0) {
       this._flatpickr.destroy();
       this._flatpickr = null;
     }
@@ -261,6 +262,15 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnFormSubmit(this._submitHandler);
     this.setOnEventsListClick();
     this.setOnDestinationInputChange();
+  }
+
+  setOnDateInputed() {
+    this.getElement().querySelector(`#event-start-time-1`)
+      .addEventListener(`input`, () => {
+        const inputValue = document.querySelector(`#event-start-time-1`).value;
+        const dates = inputValue.split(`/`);
+        this._flatpickr.set(`minDate`, new Date(2020, dates[1] - 1, dates[0]));
+      });
   }
 
   setOnCloseRollupClick(handler) {
