@@ -1,8 +1,5 @@
-import {getRandomArrayItem} from "../utils/common.js";
-import {getRandomIntegerNumber} from "../utils/common.js";
-import {createOptions} from "../utils/common.js";
-import {TYPES_POINT} from "../constants.js";
-import {DESTINATIONS_POINT} from "../constants.js";
+import {getRandomArrayItem, getRandomIntegerNumber, createOptions} from "../utils/common.js";
+import {TYPES_POINT, DESTINATIONS_POINT} from "../constants.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "./item-description-images.js";
 import moment from "moment";

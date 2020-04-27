@@ -1,7 +1,6 @@
-import {setPretext, formatTime} from "../utils/common.js";
+import {setPretext, formatTime, getRandomIntegerNumber} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
 import moment from "moment";
-import {getRandomIntegerNumber} from "../utils/common.js";
 
 const MAX_MINUTES_DIFFERENCE = 500;
 const MIN_MINUTES_DIFFERENCE = 1;
