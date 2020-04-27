@@ -6,6 +6,15 @@ import {DESTINATIONS_POINT} from "../constants.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "./item-description-images.js";
 
+const getRandomDate = () => {
+  const targetDate = new Date();
+  const diffValue = getRandomIntegerNumber(0, 8);
+
+  targetDate.setDate(targetDate.getDate() + diffValue);
+
+  return targetDate;
+};
+
 
 const generateDayItem = () => {
   const typeElement = getRandomArrayItem(TYPES_POINT);
@@ -29,7 +38,8 @@ const generateDayItem = () => {
     description: descriptionMocks[destinationPoint],
     images: imagesMocks[destinationPoint],
     time: setTime(),
-    isFavourite: false
+    isFavourite: false,
+    date: getRandomDate()
   };
 };
 

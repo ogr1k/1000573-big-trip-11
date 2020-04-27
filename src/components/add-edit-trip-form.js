@@ -6,8 +6,11 @@ import {createOptions} from "../utils/common.js";
 import AbstractSmartComponent from "./abstact-smart-components.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
+import flatpickr from "flatpickr";
 
-const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createFormFlag, createdImages) => {
+import "flatpickr/dist/flatpickr.min.css";
+
+const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createFormFlag, createdImages, isValidDestination) => {
   return (`<section class="event__details">
       ${
     optionsList.length >= 1 ?
@@ -18,7 +21,7 @@ const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destinati
         </div>
       </section>` : `` }
 
-      ${destination ? `<section class="event__section  event__section--destination">
+      ${isValidDestination ? `<section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
         <p class="event__destination-description">${descriptionMocks[destination]}</p>
 
@@ -83,6 +86,9 @@ const checkIsValidDestination = (element) => {
 const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const isCreateForm = !itemsData;
 
+  // const date = itemsData.date;
+  // const time = itemsData.time;
+
   let type = elements.type;
   const destination = elements.destination;
 
@@ -103,7 +109,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   let isValidDestination = checkIsValidDestination(destination);
 
   let images;
-  if (destination) {
+  if (isValidDestination) {
     images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
   }
   const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it)).join(`\n`);
@@ -150,7 +156,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
         <label class="visually-hidden" for="event-start-time-1">
           From
         </label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">
           To
@@ -182,7 +188,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
     </header>
 
     ${ !isValidDestination && optionsList.length < 1 ? `` :
-      getOptionsAndDestinationTemplate(optionsList, options, destination, isCreateForm, images)}
+      getOptionsAndDestinationTemplate(optionsList, options, destination, isCreateForm, images, isValidDestination)}
   </form>`
   );
 };
@@ -196,19 +202,21 @@ export default class EditTripForm extends AbstractSmartComponent {
 
     this._clickHandler = null;
     this._submitHandler = null;
+    this._flatpickr = null;
 
     if (day) {
       this._type = day.type;
       this._destination = day.destination;
     }
 
-
+    this._applyFlatpickr();
     this.setOnEventsListClick();
     this.setOnDestinationInputChange();
   }
 
   rerender() {
     super.rerender();
+    this._applyFlatpickr();
   }
 
   reset() {
@@ -218,6 +226,24 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._destination = day.destination;
 
     this.rerender();
+  }
+
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    const dateElements = this.getElement().querySelectorAll(`.event__input--time`);
+    dateElements.forEach((element) => {
+      this._flatpickr = flatpickr(element, {
+        dateFormat: `d/m/y H:i`,
+        allowInput: true,
+        defaultDate: `today`,
+        enableTime: true,
+        minDate: `today`
+      });
+    });
   }
 
   getTemplate() {
@@ -266,5 +292,6 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._destination = evt.target.value;
       this.rerender();
     });
+
   }
 }
