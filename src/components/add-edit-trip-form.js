@@ -4,6 +4,7 @@ import AbstractSmartComponent from "./abstact-smart-components.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
 import flatpickr from "flatpickr";
+import moment from "moment";
 
 import "flatpickr/dist/flatpickr.min.css";
 
@@ -236,6 +237,9 @@ export default class EditTripForm extends AbstractSmartComponent {
       altFormat: `d/m/y H:i`,
       dateFormat: `d/m/y H:i`,
       defaultDate: `today`,
+      // eslint-disable-next-line
+      time_24hr: true,
+      enableTime: true,
       minDate: `today`,
     };
 
