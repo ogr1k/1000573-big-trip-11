@@ -4,7 +4,6 @@ import AbstractSmartComponent from "./abstact-smart-components.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
 import flatpickr from "flatpickr";
-
 import "flatpickr/dist/flatpickr.min.css";
 
 const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createdImages) => {
