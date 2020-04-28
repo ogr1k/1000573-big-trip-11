@@ -1,23 +1,23 @@
-import {getRandomArrayItem} from "../utils/common.js";
-import {getRandomIntegerNumber} from "../utils/common.js";
-import {createOptions} from "../utils/common.js";
-import {TYPES_POINT} from "../constants.js";
-import {DESTINATIONS_POINT} from "../constants.js";
+import {getRandomArrayItem, getRandomIntegerNumber, createOptions} from "../utils/common.js";
+import {TYPES_POINT, DESTINATIONS_POINT} from "../constants.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "./item-description-images.js";
+import moment from "moment";
+
+const MAX_MINUTES_DIFFERENCE = 500;
+const MIN_MINUTES_DIFFERENCE = 1;
+
+const getDate = () => {
+  const startTime = moment(new Date(2020, 3, 27, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
+  const endTime = moment(startTime).add(getRandomIntegerNumber(MIN_MINUTES_DIFFERENCE, MAX_MINUTES_DIFFERENCE), `minutes`);
+
+  return [startTime, endTime];
+};
 
 
 const generateDayItem = () => {
   const typeElement = getRandomArrayItem(TYPES_POINT);
 
-  const setTime = () => {
-    const firstDateHour = getRandomIntegerNumber(0, 23);
-    let getDate = (string) => new Date(2020, 0, 16, string.split(`:`)[0], string.split(`:`)[1]);
-    const firstTime = getDate(`${firstDateHour}:${getRandomIntegerNumber(0, 59)}`);
-    const secondTime = getDate(`${getRandomIntegerNumber(firstDateHour, 23)}:${getRandomIntegerNumber(0, 59)}`);
-    let time = [firstTime, secondTime];
-    return time;
-  };
 
   const destinationPoint = getRandomArrayItem(DESTINATIONS_POINT);
 
@@ -28,8 +28,8 @@ const generateDayItem = () => {
     options: createOptions(typeElement, optionsMocks),
     description: descriptionMocks[destinationPoint],
     images: imagesMocks[destinationPoint],
-    time: setTime(),
-    isFavourite: false
+    isFavourite: false,
+    date: getDate()
   };
 };
 

@@ -1,13 +1,14 @@
-import {TYPES_POINT_TRANSFER} from "../constants.js";
-import {TYPES_POINT_ACTIVITY} from "../constants.js";
-import {DESTINATIONS_POINT} from "../constants.js";
-import {setPretext} from "../utils/common.js";
-import {createOptions} from "../utils/common.js";
+import {TYPES_POINT_TRANSFER, TYPES_POINT_ACTIVITY, DESTINATIONS_POINT} from "../constants.js";
+import {setPretext, createOptions} from "../utils/common.js";
 import AbstractSmartComponent from "./abstact-smart-components.js";
 import {optionsMocks} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+import moment from "moment";
 
-const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createFormFlag, createdImages) => {
+const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createdImages) => {
+  const isValidDestination = checkIsValidDestination(destination);
   return (`<section class="event__details">
       ${
     optionsList.length >= 1 ?
@@ -18,13 +19,13 @@ const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destinati
         </div>
       </section>` : `` }
 
-      ${destination ? `<section class="event__section  event__section--destination">
+      ${isValidDestination ? `<section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
         <p class="event__destination-description">${descriptionMocks[destination]}</p>
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
-          ${ createFormFlag && !destination ? `` : `${createdImages}`}
+          ${ !destination ? `` : `${createdImages}`}
           </div>
         </div>
       </section>` : ``}
@@ -85,6 +86,8 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
 
   let type = elements.type;
   const destination = elements.destination;
+  const date = elements.date;
+
 
   if (isCreateForm && !type) {
     type = `bus`;
@@ -100,16 +103,18 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
     options = optionsList.map((it, index) => renderOption(it.name, it.price, index)).join(`\n`);
   }
 
-  let isValidDestination = checkIsValidDestination(destination);
+  const isValidDestination = checkIsValidDestination(destination);
 
   let images;
-  if (destination) {
+  if (isValidDestination) {
     images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
   }
   const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it)).join(`\n`);
   const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it)).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
   const pretext = setPretext(typeUpperCase);
+
+  const optionAndDestinationTemplate = getOptionsAndDestinationTemplate(optionsList, options, destination, images);
 
   return (
     `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post">
@@ -150,12 +155,12 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
         <label class="visually-hidden" for="event-start-time-1">
           From
         </label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${ isCreateForm ? `` : `${date[0]}`}">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">
           To
         </label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${ isCreateForm ? `` : `${date[1]}`}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -182,7 +187,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
     </header>
 
     ${ !isValidDestination && optionsList.length < 1 ? `` :
-      getOptionsAndDestinationTemplate(optionsList, options, destination, isCreateForm, images)}
+      optionAndDestinationTemplate}
   </form>`
   );
 };
@@ -196,34 +201,85 @@ export default class EditTripForm extends AbstractSmartComponent {
 
     this._clickHandler = null;
     this._submitHandler = null;
+    this._flatpickrStart = null;
+    this._flatpickrEnd = null;
 
     if (day) {
       this._type = day.type;
       this._destination = day.destination;
+      this._date = [...day.date];
     }
 
+    if (!day) {
+      this._date = [];
+    }
 
+    this._applyFlatpickr();
     this.setOnEventsListClick();
     this.setOnDestinationInputChange();
+    this.setOnStartDateChanged();
+    this.setOnEndDateChanged();
   }
 
   rerender() {
     super.rerender();
+    this._applyFlatpickr();
   }
 
   reset() {
     const day = this._day;
 
     this._type = day.type;
+    this._date = day.date;
     this._destination = day.destination;
 
     this.rerender();
   }
 
+  _applyFlatpickr() {
+    if (this._flatpickrStart && this._flatpickrEnd) {
+      this._flatpickrStart.destroy();
+      this._flatpickrStart = null;
+      this._flatpickrEnd.destroy();
+      this._flatpickrEnd = null;
+    }
+
+    const startTimeElement = this.getElement().querySelector(`#event-start-time-1`);
+    const endTimeElement = this.getElement().querySelector(`#event-end-time-1`);
+
+    const flatpickrSettings = {
+      altInput: true,
+      altFormat: `d/m/y H:i`,
+      dateFormat: `d/m/y H:i`,
+      // eslint-disable-next-line
+      time_24hr: true,
+      enableTime: true,
+      defaultDate: new Date()
+    };
+
+    let startDateObject;
+
+    if (this._day) {
+      startDateObject = moment(this._date[0]).toDate();
+      flatpickrSettings.defaultDate = startDateObject;
+    }
+
+
+    this._flatpickrStart = flatpickr(startTimeElement, flatpickrSettings);
+
+    if (this._day) {
+      flatpickrSettings.minDate = startDateObject;
+      flatpickrSettings.defaultDate = moment(this._date[1]).toDate();
+    }
+
+    this._flatpickrEnd = flatpickr(endTimeElement, flatpickrSettings);
+  }
+
   getTemplate() {
     return createAddEditTripFormTemplate(this._day, {
       type: this._type,
-      destination: this._destination
+      destination: this._destination,
+      date: this._date
     });
   }
 
@@ -236,6 +292,24 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnFormSubmit(this._submitHandler);
     this.setOnEventsListClick();
     this.setOnDestinationInputChange();
+    this.setOnStartDateChanged();
+    this.setOnEndDateChanged();
+  }
+
+  setOnStartDateChanged() {
+    this.getElement().querySelector(`#event-start-time-1`)
+      .addEventListener(`change`, () => {
+        this._date[0] = this._flatpickrStart.selectedDates[0];
+        const pickedStartDate = this._flatpickrStart.selectedDates[0];
+        this._flatpickrEnd.set(`minDate`, new Date(pickedStartDate));
+      });
+  }
+
+  setOnEndDateChanged() {
+    this.getElement().querySelector(`#event-end-time-1`)
+      .addEventListener(`change`, () => {
+        this._date[1] = this._flatpickrEnd.selectedDates[0];
+      });
   }
 
   setOnCloseRollupClick(handler) {
@@ -266,5 +340,6 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._destination = evt.target.value;
       this.rerender();
     });
+
   }
 }
