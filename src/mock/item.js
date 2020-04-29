@@ -8,7 +8,8 @@ const MAX_MINUTES_DIFFERENCE = 500;
 const MIN_MINUTES_DIFFERENCE = 1;
 
 const getDate = () => {
-  const startTime = moment(new Date(2020, 3, 27, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
+  const today = (new Date()).getDate();
+  const startTime = moment(new Date(2020, 3, today, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
   const endTime = moment(startTime).add(getRandomIntegerNumber(MIN_MINUTES_DIFFERENCE, MAX_MINUTES_DIFFERENCE), `minutes`);
 
   return [startTime, endTime];
@@ -30,6 +31,7 @@ const generateDayItem = () => {
     description: descriptionMocks[destinationPoint],
     images: imagesMocks[destinationPoint],
     isFavourite: false,
+    parentIndex: getRandomIntegerNumber(0, 3),
     date: getDate()
   };
 };

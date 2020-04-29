@@ -1,4 +1,3 @@
-import FilterTemplate from "./components/filters.js";
 import InfoSectionTemplate from "./components/information-section.js";
 import InfoTemplate from "./components/information";
 import PriceTemplate from "./components/price.js";
@@ -6,13 +5,14 @@ import TabsTemplate from "./components/tabs.js";
 import TripSectionTemplate from "./components/trip-section.js";
 import TripController from "./controllers/trip.js";
 import PointsModel from "./models/points.js";
+import FilterController from "./controllers/filter.js";
 
 import {generateDays} from "./mock/item.js";
 
 import {RenderPosition, render} from "./utils/render.js";
 import {findLastElement} from "./utils/common.js";
 
-import {NAVIGATION_ELEMENTS, FILTER_ELEMENTS} from "./constants.js";
+import {NAVIGATION_ELEMENTS} from "./constants.js";
 
 const POINTS_COUNT = 15;
 
@@ -31,11 +31,14 @@ render(infoSectionElement, new PriceTemplate(), RenderPosition.BEFOREEND);
 
 const filtersContanerElement = document.querySelector(`.trip-controls`);
 render(filtersContanerElement, new TabsTemplate(NAVIGATION_ELEMENTS), RenderPosition.AFTERBEGIN);
-render(filtersContanerElement, new FilterTemplate(FILTER_ELEMENTS), RenderPosition.BEFOREEND);
+
+const filterController = new FilterController(filtersContanerElement, pointsModel);
+filterController.render();
 
 const mainContainerElement = document.querySelector(`#js-trip-event`);
 const tripSectionComponent = new TripSectionTemplate();
 render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
+
 
 const tripController = new TripController(tripSectionComponent, pointsModel);
 

@@ -1,6 +1,6 @@
 import AbstractComponent from "./abstract-component.js";
 
-const FILTER_ID_PREFIX = `filter__`;
+const FILTER_ID_PREFIX = `filter-`;
 
 const getFilterNameById = (id) => {
   return id.substring(FILTER_ID_PREFIX.length);
@@ -18,7 +18,7 @@ const createFilterElement = (name, isChecked) => {
 
 
 const createFiltersTemplate = (data) => {
-  const filters = data.map((it) => createFilterElement(it, it.checked)).join(`\n`);
+  const filters = data.map((it) => createFilterElement(it.name, it.checked)).join(`\n`);
   return (
     `<form class="trip-filters" action="#" method="get">
      ${filters}

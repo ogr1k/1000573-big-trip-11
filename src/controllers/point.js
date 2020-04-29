@@ -1,4 +1,4 @@
-import {RenderPosition, replace, render} from "../utils/render.js";
+import {RenderPosition, replace, render, remove} from "../utils/render.js";
 import DayItem from "../components/points-element.js";
 import EventOption from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
@@ -7,7 +7,6 @@ const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
 };
-
 
 const renderOptions = (element, currentItem) => {
   render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
@@ -75,6 +74,12 @@ export default class PointController {
     });
   }
 
+  destroy() {
+    remove(this._pointComponent);
+    remove(this._pointEditComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
+  }
+
 
   setDefaultView() {
     const createFormElement = document.querySelector(`.event--create`);
@@ -106,5 +111,9 @@ export default class PointController {
     if (isEscKey) {
       this._replaceEditToPoint();
     }
+  }
+
+  _onFilterChange() {
+    this._updateTasks();
   }
 }

@@ -1,8 +1,6 @@
 import FilterTemplate from "../components/filters.js";
 import {render, replace, RenderPosition} from "../utils/render.js";
-import {getTasksByFilter} from "../utils/filter.js";
 import {FilterType} from "../constants.js";
-
 
 export default class FilterController {
   constructor(container, pointsModel) {
@@ -20,14 +18,14 @@ export default class FilterController {
 
   render() {
     const container = this._container;
-    const allPoints = this._pointsModel.getTasksAll();
     const filters = Object.values(FilterType).map((filterType) => {
       return {
         name: filterType,
-        count: getTasksByFilter(allPoints, filterType).length,
         checked: filterType === this._activeFilterType,
       };
     });
+
+
     const oldComponent = this._filterComponent;
 
     this._filterComponent = new FilterTemplate(filters);
