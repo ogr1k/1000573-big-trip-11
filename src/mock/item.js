@@ -22,6 +22,7 @@ const generateDayItem = () => {
   const destinationPoint = getRandomArrayItem(DESTINATIONS_POINT);
 
   return {
+    id: String(new Date() + Math.random()),
     type: typeElement,
     destination: destinationPoint,
     price: Math.round(getRandomIntegerNumber(10, 50) / 10) * 10,

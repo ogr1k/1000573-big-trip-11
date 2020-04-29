@@ -207,11 +207,11 @@ export default class EditTripForm extends AbstractSmartComponent {
     if (day) {
       this._type = day.type;
       this._destination = day.destination;
-      this._date = [...day.date];
+      this._dates = [...day.date];
     }
 
     if (!day) {
-      this._date = [];
+      this._dates = [];
     }
 
     this._applyFlatpickr();
@@ -230,7 +230,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     const day = this._day;
 
     this._type = day.type;
-    this._date = day.date;
+    this._dates = day.date;
     this._destination = day.destination;
 
     this.rerender();
@@ -259,17 +259,17 @@ export default class EditTripForm extends AbstractSmartComponent {
 
     let startDateObject;
 
-    if (this._day) {
-      startDateObject = moment(this._date[0]).toDate();
+    if (this._dates) {
+      startDateObject = moment(this._dates[0]).toDate();
       flatpickrSettings.defaultDate = startDateObject;
     }
 
 
     this._flatpickrStart = flatpickr(startTimeElement, flatpickrSettings);
 
-    if (this._day) {
+    if (this._dates) {
       flatpickrSettings.minDate = startDateObject;
-      flatpickrSettings.defaultDate = moment(this._date[1]).toDate();
+      flatpickrSettings.defaultDate = moment(this._dates[1]).toDate();
     }
 
     this._flatpickrEnd = flatpickr(endTimeElement, flatpickrSettings);
@@ -279,7 +279,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     return createAddEditTripFormTemplate(this._day, {
       type: this._type,
       destination: this._destination,
-      date: this._date
+      date: this._dates
     });
   }
 
@@ -299,7 +299,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   setOnStartDateChanged() {
     this.getElement().querySelector(`#event-start-time-1`)
       .addEventListener(`change`, () => {
-        this._date[0] = this._flatpickrStart.selectedDates[0];
+        this._dates[0] = this._flatpickrStart.selectedDates[0];
         const pickedStartDate = this._flatpickrStart.selectedDates[0];
         this._flatpickrEnd.set(`minDate`, new Date(pickedStartDate));
       });
@@ -308,7 +308,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   setOnEndDateChanged() {
     this.getElement().querySelector(`#event-end-time-1`)
       .addEventListener(`change`, () => {
-        this._date[1] = this._flatpickrEnd.selectedDates[0];
+        this._dates[1] = this._flatpickrEnd.selectedDates[0];
       });
   }
 

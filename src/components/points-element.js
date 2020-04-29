@@ -3,13 +3,14 @@ import AbstractComponent from "./abstract-component.js";
 import moment from "moment";
 
 
-const NOT_VALID_CASES = [`0D`, `00H`, `00M`];
+const NOT_VALID_CASES = [`00D`, `00H`, `00M`];
 
 const getFinalDifferenceResult = (startTime, endTime) => {
   const duration = moment.duration(endTime.diff(startTime));
 
   const daysDifferenceDuration = moment.duration(duration).days();
-  const differenceResult = moment.utc(duration.asMilliseconds()).format(`${daysDifferenceDuration}[D] HH[H] mm[M]`);
+  const formattedDays = daysDifferenceDuration >= 10 ? daysDifferenceDuration : `0${daysDifferenceDuration}`;
+  const differenceResult = moment.utc(duration.asMilliseconds()).format(`${formattedDays}[D] HH[H] mm[M]`);
 
   const resultToString = differenceResult.split(` `);
 

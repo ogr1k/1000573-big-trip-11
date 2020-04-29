@@ -12,6 +12,12 @@ const Events = {
   FLIGHT: `Flight`
 };
 
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
+
 
 export const EVENTS_PRETEXTS = {
   [Events.CHECKIN]: `in`,

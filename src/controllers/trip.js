@@ -25,10 +25,9 @@ const renderDayItem = (container, days, onDataChange, onViewChange) => {
 
 
 export default class TripController {
-  constructor(container) {
+  constructor(container, pointsModels) {
     this._container = container;
-
-    this._points = [];
+    this._pointsModels = pointsModels;
 
     this._showedPointControllers = [];
 
@@ -43,10 +42,12 @@ export default class TripController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(points) {
-    this._points = points;
-    render(this._container.getElement(), this._sortComponent, RenderPosition.BEFOREEND);
-    render(this._container.getElement(), this._daysComponent, RenderPosition.BEFOREEND);
+  render() {
+    const container = this._container.getElement();
+    const points = this._pointsModels.getTasks();
+
+    render(container, this._sortComponent, RenderPosition.BEFOREEND);
+    render(container, this._daysComponent, RenderPosition.BEFOREEND);
     render(mainTripElement, this._newEventButtonComponent, RenderPosition.BEFOREEND);
     const tripDaysElement = document.querySelector(`.trip-days`);
 
@@ -54,7 +55,7 @@ export default class TripController {
       const pointEditComponent = new EditTripForm();
       this._onViewChange();
       document.addEventListener(`keydown`, this._onEscKeyDown);
-      render(this._container.getElement(), pointEditComponent, RenderPosition.BEFOREBEGIN, tripDaysElement);
+      render(container, pointEditComponent, RenderPosition.BEFOREBEGIN, tripDaysElement);
       pointEditComponent.setOnFormSubmit(() => {
         remove(pointEditComponent);
         document.removeEventListener(`keydown`, this._onEscKeyDown.bind(pointEditComponent));
@@ -63,25 +64,25 @@ export default class TripController {
 
     this._newEventButtonComponent.setOnClick(onNewEventButtonClick);
 
-    const renderDay = (index, elements) => {
+    const renderDay = (index) => {
       const dayComponent = new DayItemsTemplate(index + 1);
       render(tripDaysElement, dayComponent, RenderPosition.BEFOREEND);
       const itemsList = dayComponent.getElement().querySelector(`.trip-events__list`);
       const calculatedIndex = index * POINTS_PER_DAY_COUNT;
-      const daysList = elements.slice(calculatedIndex, calculatedIndex + POINTS_PER_DAY_COUNT);
-      const newPoints = renderDayItem(itemsList, daysList, this._onDataChange, this._onViewChange);
+      const pointsList = points.slice(calculatedIndex, calculatedIndex + POINTS_PER_DAY_COUNT);
+      const newPoints = renderDayItem(itemsList, pointsList, this._onDataChange, this._onViewChange);
       this._showedPointControllers = this._showedPointControllers.concat(newPoints);
     };
 
-    const renderDates = (container, noPointsComponent, elements) => {
+    const renderDates = (datesContainer, noPointsComponent) => {
 
       if (DAY_COUNT === 0) {
-        render(container, noPointsComponent, RenderPosition.BEFOREEND);
+        render(datesContainer, noPointsComponent, RenderPosition.BEFOREEND);
         return;
       }
 
       for (let i = 0; i < DAY_COUNT; i++) {
-        renderDay(i, elements);
+        renderDay(i);
       }
     };
 
@@ -89,15 +90,11 @@ export default class TripController {
   }
 
   _onDataChange(pointController, oldData, newData) {
-    const index = this._points.findIndex((it) => it === oldData);
+    const isSuccess = this._pointsModels.updateTask(oldData.id, newData);
 
-    if (index === -1) {
-      return;
+    if (isSuccess) {
+      pointController.render(newData);
     }
-
-    this._points = [].concat(this._points.slice(0, index), newData, this._points.slice(index + 1));
-
-    pointController.render(this._points[index]);
   }
 
   _onViewChange() {

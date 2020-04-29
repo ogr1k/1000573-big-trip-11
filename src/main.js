@@ -5,6 +5,7 @@ import PriceTemplate from "./components/price.js";
 import TabsTemplate from "./components/tabs.js";
 import TripSectionTemplate from "./components/trip-section.js";
 import TripController from "./controllers/trip.js";
+import PointsModel from "./models/points.js";
 
 import {generateDays} from "./mock/item.js";
 
@@ -16,6 +17,8 @@ import {NAVIGATION_ELEMENTS, FILTER_ELEMENTS} from "./constants.js";
 const POINTS_COUNT = 15;
 
 const days = generateDays(POINTS_COUNT);
+const pointsModel = new PointsModel();
+pointsModel.setTasks(days);
 
 
 const mainTripElement = document.querySelector(`.trip-main`);
@@ -34,7 +37,7 @@ const mainContainerElement = document.querySelector(`#js-trip-event`);
 const tripSectionComponent = new TripSectionTemplate();
 render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
-const tripController = new TripController(tripSectionComponent);
+const tripController = new TripController(tripSectionComponent, pointsModel);
 
 tripController.render(days);
 
