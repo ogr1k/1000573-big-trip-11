@@ -11,7 +11,7 @@ export default class Points {
     this._filterChangeHandlers = [];
   }
 
-  getTasks() {
+  getPoints() {
     return getTasksByFilter(this._points, this._activeFilterType);
   }
 
@@ -19,7 +19,7 @@ export default class Points {
     return this._points;
   }
 
-  setTasks(tasks) {
+  setPoints(tasks) {
     this._points = Array.from(tasks);
     this._callHandlers(this._dataChangeHandlers);
   }
@@ -29,7 +29,7 @@ export default class Points {
     this._callHandlers(this._filterChangeHandlers);
   }
 
-  updateTask(id, task) {
+  updatePoint(id, task) {
     const index = this._points.findIndex((it) => it.id === id);
 
     if (index === -1) {
@@ -42,6 +42,26 @@ export default class Points {
 
     return true;
   }
+
+  removePoint(id) {
+    const index = this._points.findIndex((it) => it.id === id);
+
+    if (index === -1) {
+      return false;
+    }
+
+    this._points = [].concat(this._points.slice(0, index), this._points.slice(index + 1));
+
+    this._callHandlers(this._dataChangeHandlers);
+
+    return true;
+  }
+
+  addPoint(task) {
+    this._points = [].concat(task, this._points);
+    this._callHandlers(this._dataChangeHandlers);
+  }
+
 
   setFilterChangeHandler(handler) {
     this._filterChangeHandlers.push(handler);

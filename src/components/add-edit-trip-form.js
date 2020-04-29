@@ -7,6 +7,18 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import moment from "moment";
 
+const parseFormData = (formData) => {
+  return {
+    description: formData.get(`text`),
+    color: formData.get(`color`),
+    dueDate: date ? new Date(date) : null,
+    repeatingDays: formData.getAll(`repeat`).reduce((acc, it) => {
+      acc[it] = true;
+      return acc;
+    }, repeatingDays),
+  };
+};
+
 const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createdImages) => {
   const isValidDestination = checkIsValidDestination(destination);
   return (`<section class="event__details">
@@ -201,6 +213,8 @@ export default class EditTripForm extends AbstractSmartComponent {
 
     this._clickHandler = null;
     this._submitHandler = null;
+    this._deleteButtonClickHandler = null;
+
     this._flatpickrStart = null;
     this._flatpickrEnd = null;
 
@@ -236,12 +250,17 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.rerender();
   }
 
+  removeElement() {
+    if (this._flatpickrStart && this._flatpickrEnd) {
+      this._destroyFlatpickrs();
+    }
+
+    super.removeElement();
+  }
+
   _applyFlatpickr() {
     if (this._flatpickrStart && this._flatpickrEnd) {
-      this._flatpickrStart.destroy();
-      this._flatpickrStart = null;
-      this._flatpickrEnd.destroy();
-      this._flatpickrEnd = null;
+      this._destroyFlatpickrs();
     }
 
     const startTimeElement = this.getElement().querySelector(`#event-start-time-1`);
@@ -275,6 +294,13 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._flatpickrEnd = flatpickr(endTimeElement, flatpickrSettings);
   }
 
+  _destroyFlatpickrs() {
+    this._flatpickrStart.destroy();
+    this._flatpickrStart = null;
+    this._flatpickrEnd.destroy();
+    this._flatpickrEnd = null;
+  }
+
   getTemplate() {
     return createAddEditTripFormTemplate(this._day, {
       type: this._type,
@@ -294,6 +320,21 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnDestinationInputChange();
     this.setOnStartDateChanged();
     this.setOnEndDateChanged();
+    this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+  }
+
+  getData() {
+    const form = this.getElement().querySelector(`.event--edit`);
+    const formData = new FormData(form);
+
+    return parseFormData(formData);
+  }
+
+  setDeleteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, handler);
+
+    this._deleteButtonClickHandler = handler;
   }
 
   setOnStartDateChanged() {

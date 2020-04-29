@@ -4,7 +4,8 @@ import SortTemplate from "../components/sorting.js";
 import NoPointsTemplate from "../components/no-points.js";
 import NewEventButton from "../components/new-event-button.js";
 import {RenderPosition, render, remove} from "../utils/render.js";
-import PointController from "./point.js";
+import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point.js";
+
 import EditTripForm from "../components/add-edit-trip-form.js";
 
 import {SORT_ELEMENTS} from "../constants.js";
@@ -18,7 +19,7 @@ const renderPoint = (points, onDataChange, onViewChange) => {
 
     const container = document.querySelectorAll(`.trip-events__list`)[item.parentIndex];
     const pointController = new PointController(container, onDataChange, onViewChange);
-    pointController.render(item);
+    pointController.render(item, PointControllerMode.DEFAULT);
 
     return pointController;
   });
@@ -46,7 +47,7 @@ export default class TripController {
 
   render() {
     const container = this._container.getElement();
-    const points = this._pointsModels.getTasks();
+    const points = this._pointsModels.getPoints();
 
     render(container, this._sortComponent, RenderPosition.BEFOREEND);
     render(container, this._daysComponent, RenderPosition.BEFOREEND);
@@ -101,14 +102,31 @@ export default class TripController {
 
   _updatePoints() {
     this._removePoints();
-    this._renderPoint(this._pointsModels.getTasks());
+    this._renderPoint(this._pointsModels.getPoints());
   }
 
   _onDataChange(pointController, oldData, newData) {
-    const isSuccess = this._pointsModels.updateTask(oldData.id, newData);
+    if (oldData === EmptyPoint) {
+      this._creatingPoint = null;
+      if (newData === null) {
+        pointController.destroy();
+        this._updatePoints();
+      } else {
+        this._pointsModels.addPoint(newData);
+        pointController.render(newData, PointControllerMode.DEFAULT);
 
-    if (isSuccess) {
-      pointController.render(newData);
+        this._showedPointControllers = [].concat(pointController, this._showedPointControllers);
+
+      }
+    } else if (newData === null) {
+      this._pointsModels.removePoint(oldData.id);
+      this._updatePoints();
+    } else {
+      const isSuccess = this._pointsModels._updatePoint(oldData.id, newData);
+
+      if (isSuccess) {
+        pointController.render(newData, PointControllerMode.DEFAULT);
+      }
     }
   }
 

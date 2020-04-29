@@ -18,7 +18,7 @@ const POINTS_COUNT = 15;
 
 const days = generateDays(POINTS_COUNT);
 const pointsModel = new PointsModel();
-pointsModel.setTasks(days);
+pointsModel.setPoints(days);
 
 
 const mainTripElement = document.querySelector(`.trip-main`);

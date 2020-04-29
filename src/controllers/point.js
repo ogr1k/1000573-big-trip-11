@@ -3,10 +3,12 @@ import DayItem from "../components/points-element.js";
 import EventOption from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
 
-const Mode = {
+export const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
 };
+
+export const EmptyPoint = {};
 
 const renderOptions = (element, currentItem) => {
   render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
@@ -26,9 +28,10 @@ export default class PointController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(day) {
+  render(day, mode) {
     const oldPointComponent = this._pointComponent;
     const oldPointEditComponent = this._pointEditComponent;
+    this._mode = mode;
 
     this._pointComponent = new DayItem(day);
     this._pointEditComponent = new EditTripForm(day);
@@ -47,9 +50,12 @@ export default class PointController {
 
 
     const onEditFormSubmit = () => {
-      this._replaceEditToPoint();
+      const data = this._pointEditComponent.getData();
+      this._onDataChange(this, day, data);
       this._pointComponent.setOnRollupClick(onRollUpClick);
     };
+
+    this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, day, null));
 
 
     const onRollUpClick = () => {
@@ -95,7 +101,11 @@ export default class PointController {
   _replaceEditToPoint() {
     document.removeEventListener(`keydown`, this._onEscKeyDown);
     this._pointEditComponent.reset();
-    replace(this._pointComponent, this._pointEditComponent);
+
+    if (document.contains(this._pointEditComponent.getElement())) {
+      replace(this._pointComponent, this._pointEditComponent);
+    }
+
     this._mode = Mode.DEFAULT;
   }
 
