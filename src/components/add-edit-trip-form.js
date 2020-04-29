@@ -9,13 +9,9 @@ import moment from "moment";
 
 const parseFormData = (formData) => {
   return {
-    description: formData.get(`text`),
-    color: formData.get(`color`),
-    dueDate: date ? new Date(date) : null,
-    repeatingDays: formData.getAll(`repeat`).reduce((acc, it) => {
-      acc[it] = true;
-      return acc;
-    }, repeatingDays),
+    description: formData.get(`event-destination`),
+    price: formData.get(`event-price`),
+    isFavourite: formData.get(`event-price`),
   };
 };
 
