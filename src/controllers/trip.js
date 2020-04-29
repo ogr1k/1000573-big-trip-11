@@ -14,14 +14,14 @@ const POINTS_PER_DAY_COUNT = 5;
 
 const mainTripElement = document.querySelector(`.trip-main`);
 
-const renderDayItem = (container, days, onDataChange, onViewChange) => {
-  return days.map((item) => {
-    const pointController = new PointController(container, onDataChange, onViewChange);
-    pointController.render(item);
+// const renderDayItem = (container, days, onDataChange, onViewChange) => {
+//   return days.map((item) => {
+//     const pointController = new PointController(container, onDataChange, onViewChange);
+//     pointController.render(item);
 
-    return pointController;
-  });
-};
+//     return pointController;
+//   });
+// };
 
 
 export default class TripController {
@@ -70,7 +70,7 @@ export default class TripController {
       const itemsList = dayComponent.getElement().querySelector(`.trip-events__list`);
       const calculatedIndex = index * POINTS_PER_DAY_COUNT;
       const pointsList = points.slice(calculatedIndex, calculatedIndex + POINTS_PER_DAY_COUNT);
-      const newPoints = renderDayItem(itemsList, pointsList, this._onDataChange, this._onViewChange);
+      const newPoints = this._renderPoint(itemsList, pointsList);
       this._showedPointControllers = this._showedPointControllers.concat(newPoints);
     };
 
@@ -87,6 +87,15 @@ export default class TripController {
     };
 
     renderDates(this._container, this._noPointsComponent, points);
+  }
+
+  _renderPoint(container, points) {
+    return points.map((item) => {
+      const pointController = new PointController(container, this._onDataChange, this._onViewChange);
+      pointController.render(item);
+
+      return pointController;
+    });
   }
 
   _onDataChange(pointController, oldData, newData) {
