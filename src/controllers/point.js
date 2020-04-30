@@ -4,11 +4,19 @@ import EventOption from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
 
 export const Mode = {
+  ADDING: `adding`,
   DEFAULT: `default`,
   EDIT: `edit`,
 };
 
-export const EmptyPoint = {};
+export const EmptyPoint = {
+  decription: ``,
+  destination: ``,
+  type: `bus`,
+  date: [``, ``],
+  price: ``,
+  options: []
+};
 
 const renderOptions = (element, currentItem) => {
   render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
@@ -49,10 +57,11 @@ export default class PointController {
     };
 
 
-    const onEditFormSubmit = () => {
+    const onEditFormSubmit = (evt) => {
+      evt.preventDefault();
       const data = this._pointEditComponent.getData();
       this._onDataChange(this, day, data);
-      this._pointComponent.setOnRollupClick(onRollUpClick);
+      this._replaceEditToPoint();
     };
 
     this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, day, null));
@@ -69,15 +78,6 @@ export default class PointController {
 
     const optionsContainer = this._pointComponent.getElement().querySelector(`.event__selected-offers`);
     day.options.map((option) => renderOptions(optionsContainer, option)).join(`\n`);
-
-    this._pointEditComponent.setOnFavClick(() => {
-      this._onDataChange(this, day, Object.assign({}, day, {
-        isFavourite: !day.isFavourite,
-      }));
-
-      this._pointEditComponent.setOnCloseRollupClick(onCloseRollupClick);
-      this._pointEditComponent.setOnFormSubmit(onEditFormSubmit);
-    });
   }
 
   destroy() {
@@ -121,9 +121,5 @@ export default class PointController {
     if (isEscKey) {
       this._replaceEditToPoint();
     }
-  }
-
-  _onFilterChange() {
-    this._updateTasks();
   }
 }

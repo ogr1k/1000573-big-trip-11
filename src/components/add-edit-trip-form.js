@@ -7,11 +7,33 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import moment from "moment";
 
-const parseFormData = (formData) => {
+
+const createOption = (nameElement, priceElement, typeElement) => {
   return {
-    description: formData.get(`event-destination`),
+    name: nameElement,
+    price: priceElement,
+    type: typeElement
+  };
+};
+
+const parseFormData = (formData, form, start, end) => {
+  const typeText = form.querySelector(`.event__type-output`).textContent.split(` `);
+  const optionNameElement = Array.from(form.querySelectorAll(`.event__offer-title`));
+  let optionsArray = [];
+  if (optionNameElement) {
+    const optionName = optionNameElement.textContent;
+    const optionPrice = form.querySelectorAll(`.event__offer-price`);
+    optionNameElement.map((it, index) => {
+      optionsArray.push(createOption(it.textContent, optionPrice[index].textContent, optionName));
+    });
+  }
+  return {
+    id: form.id,
+    destination: formData.get(`event-destination`),
     price: formData.get(`event-price`),
-    isFavourite: formData.get(`event-price`),
+    date: [moment(start.selectedDates[0]), moment(end.selectedDates[0])],
+    type: typeText[10],
+    options: optionsArray
   };
 };
 
@@ -91,7 +113,7 @@ const checkIsValidDestination = (element) => {
 
 const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const isCreateForm = !itemsData;
-
+  const id = elements.id;
   let type = elements.type;
   const destination = elements.destination;
   const date = elements.date;
@@ -125,14 +147,14 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const optionAndDestinationTemplate = getOptionsAndDestinationTemplate(optionsList, options, destination, images);
 
   return (
-    `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post">
+    `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post" id="${id}">
     <header class="event__header">
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" value="">
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -213,11 +235,13 @@ export default class EditTripForm extends AbstractSmartComponent {
 
     this._flatpickrStart = null;
     this._flatpickrEnd = null;
-
+    this._id = ``;
     if (day) {
+      this._id = day.id;
       this._type = day.type;
       this._destination = day.destination;
       this._dates = [...day.date];
+      this._price = day.price;
     }
 
     if (!day) {
@@ -240,9 +264,10 @@ export default class EditTripForm extends AbstractSmartComponent {
     const day = this._day;
 
     this._type = day.type;
-    this._dates = day.date;
+    this._dates = [...day.date];
     this._destination = day.destination;
-
+    this._price = day.price;
+    this._id = day.id;
     this.rerender();
   }
 
@@ -301,7 +326,8 @@ export default class EditTripForm extends AbstractSmartComponent {
     return createAddEditTripFormTemplate(this._day, {
       type: this._type,
       destination: this._destination,
-      date: this._dates
+      date: this._dates,
+      id: this._id
     });
   }
 
@@ -320,10 +346,10 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   getData() {
-    const form = this.getElement().querySelector(`.event--edit`);
+    const form = document.querySelector(`.event--edit`);
     const formData = new FormData(form);
 
-    return parseFormData(formData);
+    return parseFormData(formData, form, this._flatpickrStart, this._flatpickrEnd);
   }
 
   setDeleteButtonClickHandler(handler) {
@@ -361,12 +387,12 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._submitHandler = handler;
   }
 
-  setOnFavClick(handler) {
-    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, handler);
-  }
-
   setOnEventsListClick() {
     this.getElement().querySelector(`.event__type-list`).addEventListener(`click`, (evt) => {
+      if (evt.target.tagName !== `LABEL`) {
+        return;
+      }
+
       this._type = evt.target.innerText;
       this.rerender();
     });
@@ -377,6 +403,5 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._destination = evt.target.value;
       this.rerender();
     });
-
   }
 }

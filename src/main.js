@@ -20,7 +20,6 @@ const days = generateDays(POINTS_COUNT);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(days);
 
-
 const mainTripElement = document.querySelector(`.trip-main`);
 render(mainTripElement, new InfoSectionTemplate(), RenderPosition.AFTERBEGIN);
 

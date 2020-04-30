@@ -40,6 +40,7 @@ export default class TripController {
     this._daysComponent = new TripDaysListTemplate();
     this._newEventButtonComponent = new NewEventButton();
     this._noPointsComponent = new NoPointsTemplate();
+    this._creatingPoint = null;
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._pointsModels.setFilterChangeHandler(this._onFilterChange);
@@ -90,6 +91,16 @@ export default class TripController {
     this._renderPoint(points);
   }
 
+  createPoint() {
+    if (this._creatingPoint) {
+      return;
+    }
+
+    const pointsDay = document.querySelector(`.trip-days__item`);
+    this._creatingPoint = new PointController(pointsDay, this._onDataChange, this._onViewChange);
+    this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+  }
+
   _removePoints() {
     this._showedPointControllers.forEach((controller) => controller.destroy());
     this._showedPointControllers = [];
@@ -122,7 +133,7 @@ export default class TripController {
       this._pointsModels.removePoint(oldData.id);
       this._updatePoints();
     } else {
-      const isSuccess = this._pointsModels._updatePoint(oldData.id, newData);
+      const isSuccess = this._pointsModels.updatePoint(oldData.id, newData);
 
       if (isSuccess) {
         pointController.render(newData, PointControllerMode.DEFAULT);
