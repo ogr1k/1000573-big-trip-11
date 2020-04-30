@@ -6,6 +6,7 @@ import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js"
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import moment from "moment";
+import {EmptyPoint} from "../controllers/point.js";
 
 
 const createOption = (nameElement, priceElement, typeElement) => {
@@ -112,7 +113,7 @@ const checkIsValidDestination = (element) => {
 };
 
 const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
-  const isCreateForm = !itemsData;
+  const isCreateForm = (itemsData === EmptyPoint);
   const id = elements.id;
   let type = elements.type;
   const destination = elements.destination;

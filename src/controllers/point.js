@@ -2,6 +2,7 @@ import {RenderPosition, replace, render, remove} from "../utils/render.js";
 import DayItem from "../components/points-element.js";
 import EventOption from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
+import moment from "moment";
 
 export const Mode = {
   ADDING: `adding`,
@@ -13,7 +14,7 @@ export const EmptyPoint = {
   decription: ``,
   destination: ``,
   type: `bus`,
-  date: [``, ``],
+  date: [moment(new Date()), moment(new Date())],
   price: ``,
   options: []
 };
@@ -44,11 +45,31 @@ export default class PointController {
     this._pointComponent = new DayItem(day);
     this._pointEditComponent = new EditTripForm(day);
 
-    if (oldPointComponent && oldPointEditComponent) {
-      replace(this._pointComponent, oldPointComponent);
-      replace(this._pointEditComponent, oldPointEditComponent);
-    } else {
-      render(this._container, this._pointComponent, RenderPosition.BEFOREEND);
+    const onEditFormSubmit = (evt) => {
+      evt.preventDefault();
+      const data = this._pointEditComponent.getData();
+      this._onDataChange(this, day, data);
+      this._replaceEditToPoint();
+    };
+
+    switch (mode) {
+      case Mode.DEFAULT:
+        if (oldPointComponent && oldPointEditComponent) {
+          replace(this._pointComponent, oldPointComponent);
+          replace(this._pointEditComponent, oldPointEditComponent);
+        } else {
+          render(this._container, this._pointComponent, RenderPosition.BEFOREEND);
+        }
+        break;
+      case Mode.ADDING:
+        if (oldPointComponent && oldPointEditComponent) {
+          remove(oldPointComponent);
+          remove(oldPointEditComponent);
+        }
+        this._pointEditComponent.setOnFormSubmit(onEditFormSubmit);
+        document.addEventListener(`keydown`, this._onEscKeyDown);
+        render(document.querySelector(`.trip-events__trip-sort`), this._pointEditComponent, RenderPosition.BEFOREEND);
+        break;
     }
 
     const onCloseRollupClick = () => {
@@ -56,13 +77,6 @@ export default class PointController {
       this._pointComponent.setOnRollupClick(onRollUpClick);
     };
 
-
-    const onEditFormSubmit = (evt) => {
-      evt.preventDefault();
-      const data = this._pointEditComponent.getData();
-      this._onDataChange(this, day, data);
-      this._replaceEditToPoint();
-    };
 
     this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, day, null));
 

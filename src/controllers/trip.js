@@ -56,14 +56,7 @@ export default class TripController {
     const tripDaysElement = document.querySelector(`.trip-days`);
 
     const onNewEventButtonClick = () => {
-      const pointEditComponent = new EditTripForm();
-      this._onViewChange();
-      document.addEventListener(`keydown`, this._onEscKeyDown);
-      render(container, pointEditComponent, RenderPosition.BEFOREBEGIN, tripDaysElement);
-      pointEditComponent.setOnFormSubmit(() => {
-        remove(pointEditComponent);
-        document.removeEventListener(`keydown`, this._onEscKeyDown.bind(pointEditComponent));
-      });
+      this.createPoint();
     };
 
     this._newEventButtonComponent.setOnClick(onNewEventButtonClick);
