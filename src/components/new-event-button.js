@@ -15,4 +15,12 @@ export default class NewEventButton extends AbstractComponent {
   setOnClick(handler) {
     this.getElement().addEventListener(`click`, handler);
   }
+
+  disableButton() {
+    this.getElement().disabled = true;
+  }
+
+  enableButton() {
+    this.getElement().disabled = false;
+  }
 }

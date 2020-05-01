@@ -333,8 +333,9 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
-    const flagElement = document.querySelector(`.event--create`);
-    if (flagElement === null) {
+    const formElement = document.querySelector(`.event--edit`);
+    const flagElement = formElement.querySelector(`.event__rollup-btn`);
+    if (flagElement) {
       this.setOnCloseRollupClick(this._clickHandler);
     }
 

@@ -3,10 +3,9 @@ import TripDaysListTemplate from "../components/days-list.js";
 import SortTemplate from "../components/sorting.js";
 import NoPointsTemplate from "../components/no-points.js";
 import NewEventButton from "../components/new-event-button.js";
-import {RenderPosition, render, remove} from "../utils/render.js";
+import {RenderPosition, render} from "../utils/render.js";
 import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point.js";
 
-import EditTripForm from "../components/add-edit-trip-form.js";
 
 import {SORT_ELEMENTS} from "../constants.js";
 
@@ -25,6 +24,7 @@ const renderPoint = (points, onDataChange, onViewChange) => {
   });
 };
 
+
 export default class TripController {
   constructor(container, pointsModels) {
     this._container = container;
@@ -40,9 +40,7 @@ export default class TripController {
     this._daysComponent = new TripDaysListTemplate();
     this._newEventButtonComponent = new NewEventButton();
     this._noPointsComponent = new NoPointsTemplate();
-    this._creatingPoint = null;
 
-    this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._pointsModels.setFilterChangeHandler(this._onFilterChange);
   }
 
@@ -56,7 +54,9 @@ export default class TripController {
     const tripDaysElement = document.querySelector(`.trip-days`);
 
     const onNewEventButtonClick = () => {
+      this._onViewChange();
       this.createPoint();
+      this._newEventButtonComponent.disableButton();
     };
 
     this._newEventButtonComponent.setOnClick(onNewEventButtonClick);
@@ -85,13 +85,9 @@ export default class TripController {
   }
 
   createPoint() {
-    if (this._creatingPoint) {
-      return;
-    }
-
     const pointsDay = document.querySelector(`.trip-days__item`);
-    this._creatingPoint = new PointController(pointsDay, this._onDataChange, this._onViewChange);
-    this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+    const pointController = new PointController(pointsDay, this._onDataChange, this._onViewChange);
+    pointController.render(EmptyPoint, PointControllerMode.ADDING);
   }
 
   _removePoints() {
@@ -111,13 +107,12 @@ export default class TripController {
 
   _onDataChange(pointController, oldData, newData) {
     if (oldData === EmptyPoint) {
-      this._creatingPoint = null;
       if (newData === null) {
         pointController.destroy();
         this._updatePoints();
       } else {
         this._pointsModels.addPoint(newData);
-        pointController.render(newData, PointControllerMode.DEFAULT);
+        pointController.render(newData, PointControllerMode.DEFAULT, true);
 
         this._showedPointControllers = [].concat(pointController, this._showedPointControllers);
 
@@ -136,18 +131,6 @@ export default class TripController {
 
   _onViewChange() {
     this._showedPointControllers.forEach((it) => it.setDefaultView());
-  }
-
-  _onEscKeyDown(evt) {
-    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
-
-    if (isEscKey) {
-      const createFormElement = document.querySelector(`.event--create`);
-      if (createFormElement) {
-        createFormElement.remove();
-      }
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
-    }
   }
 
   _onFilterChange() {

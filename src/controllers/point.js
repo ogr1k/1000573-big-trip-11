@@ -11,6 +11,7 @@ export const Mode = {
 };
 
 export const EmptyPoint = {
+  id: String(new Date() + Math.random()),
   decription: ``,
   destination: ``,
   type: `bus`,
@@ -22,6 +23,8 @@ export const EmptyPoint = {
 const renderOptions = (element, currentItem) => {
   render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
 };
+
+let newEventButtonElement;
 
 export default class PointController {
   constructor(container, onDataChange, onViewChange) {
@@ -37,19 +40,20 @@ export default class PointController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(day, mode) {
+  render(day, mode, flag) {
     const oldPointComponent = this._pointComponent;
     const oldPointEditComponent = this._pointEditComponent;
     this._mode = mode;
 
+    newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
+
     this._pointComponent = new DayItem(day);
     this._pointEditComponent = new EditTripForm(day);
-
     const onEditFormSubmit = (evt) => {
       evt.preventDefault();
       const data = this._pointEditComponent.getData();
       this._onDataChange(this, day, data);
-      this._replaceEditToPoint();
+      newEventButtonElement.disabled = false;
     };
 
     switch (mode) {
@@ -57,6 +61,13 @@ export default class PointController {
         if (oldPointComponent && oldPointEditComponent) {
           replace(this._pointComponent, oldPointComponent);
           replace(this._pointEditComponent, oldPointEditComponent);
+
+          this._replaceEditToPoint();
+
+          if (flag) {
+            // перенести элемент в 1 из дней
+          }
+
         } else {
           render(this._container, this._pointComponent, RenderPosition.BEFOREEND);
         }
@@ -78,7 +89,10 @@ export default class PointController {
     };
 
 
-    this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, day, null));
+    this._pointEditComponent.setDeleteButtonClickHandler(() => {
+      this._onDataChange(this, day, null);
+      newEventButtonElement.disabled = false;
+    });
 
 
     const onRollUpClick = () => {
@@ -86,6 +100,7 @@ export default class PointController {
       document.addEventListener(`keydown`, this._onEscKeyDown);
       this._pointEditComponent.setOnCloseRollupClick(onCloseRollupClick);
       this._pointEditComponent.setOnFormSubmit(onEditFormSubmit);
+      newEventButtonElement.disabled = false;
     };
 
     this._pointComponent.setOnRollupClick(onRollUpClick);
@@ -133,7 +148,12 @@ export default class PointController {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
 
     if (isEscKey) {
+      if (this._mode === Mode.ADDING) {
+        this._onDataChange(this, EmptyPoint, null);
+      }
       this._replaceEditToPoint();
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
+      document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     }
   }
 }
