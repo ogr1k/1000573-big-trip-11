@@ -6,9 +6,7 @@ import NewEventButton from "../components/new-event-button.js";
 import {RenderPosition, render} from "../utils/render.js";
 import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point.js";
 
-
 import {SORT_ELEMENTS} from "../constants.js";
-
 const DAY_COUNT = 3;
 
 const mainTripElement = document.querySelector(`.trip-main`);
