@@ -1,6 +1,7 @@
 import {setPretext, formatTime} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
 import moment from "moment";
+import {Events} from "../constants.js";
 
 
 const NOT_VALID_CASES = [`00D`, `00H`, `00M`];
@@ -28,8 +29,8 @@ const getFinalDifferenceResult = (startTime, endTime) => {
 };
 
 const createDayElement = (data, elementIndex) => {
-  const {type, destination, price} = data;
-
+  let {type, destination, price} = data;
+  type = Events[type];
   const startTime = data.date[0];
   const endTime = data.date[1];
   const formattedStartTime = formatTime(startTime);

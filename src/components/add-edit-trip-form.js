@@ -1,4 +1,4 @@
-import {TYPES_POINT_TRANSFER, TYPES_POINT_ACTIVITY, DESTINATIONS_POINT} from "../constants.js";
+import {TransferEvents, ActivityEvents, DESTINATIONS_POINT, Events} from "../constants.js";
 import {setPretext, createOptions} from "../utils/common.js";
 import AbstractSmartComponent from "./abstact-smart-components.js";
 import {optionsMocks} from "../mock/item-options.js";
@@ -17,8 +17,7 @@ const createOption = (nameElement, priceElement, typeElement) => {
   };
 };
 
-const parseFormData = (formData, form, start, end) => {
-  const typeText = form.querySelector(`.event__type-output`).textContent.split(` `);
+const parseFormData = (formData, form, start, end, parsedType) => {
   const optionNameElement = Array.from(form.querySelectorAll(`.event__offer-title`));
   let optionsArray = [];
   if (optionNameElement) {
@@ -33,7 +32,7 @@ const parseFormData = (formData, form, start, end) => {
     destination: formData.get(`event-destination`),
     price: formData.get(`event-price`),
     date: [moment(start.selectedDates[0]), moment(end.selectedDates[0])],
-    type: typeText[10],
+    type: parsedType,
     options: optionsArray
   };
 };
@@ -76,11 +75,12 @@ const renderOption = (option, price, index) => {
       `);
 };
 
-const setTypes = (type) => {
+const setTypes = (enumType, type) => {
+  const lowerCasedType = type.toLowerCase();
   return (`
     <div class="event__type-item">
-    <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-    <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+    <input id="event-type-${lowerCasedType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${enumType}">
+    <label class="event__type-label  event__type-label--${lowerCasedType}" for="event-type-${lowerCasedType}-1">${type}</label>
     </div>
   `);
 };
@@ -91,14 +91,6 @@ const renderImages = (image) => {
 
 const setDestinationOptions = (destination) => {
   return (`<option value="${destination}"></option>`);
-};
-
-const transformFirstLetterToUpperCase = (str) => {
-  if (!str) {
-    return str;
-  }
-
-  return str[0].toUpperCase() + str.slice(1);
 };
 
 const checkIsValidDestination = (element) => {
@@ -115,7 +107,7 @@ const checkIsValidDestination = (element) => {
 const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const isCreateForm = (itemsData === EmptyPoint);
   const id = elements.id;
-  let type = elements.type;
+  let type = Events[elements.type];
   const destination = elements.destination;
   const date = elements.date;
 
@@ -124,10 +116,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
     type = `bus`;
   }
 
-
-  const typeUpperCase = transformFirstLetterToUpperCase(type);
-
-  const optionsList = createOptions(typeUpperCase, optionsMocks);
+  const optionsList = createOptions(type, optionsMocks);
 
   let options;
   if (optionsList.length >= 1) {
@@ -140,10 +129,10 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   if (isValidDestination) {
     images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
   }
-  const transferTypes = TYPES_POINT_TRANSFER.map((it) => setTypes(it)).join(`\n`);
-  const activityTypes = TYPES_POINT_ACTIVITY.map((it) => setTypes(it)).join(`\n`);
+  const transferTypes = Object.keys(TransferEvents).map((it) => setTypes(it, TransferEvents[it])).join(`\n`);
+  const activityTypes = Object.keys(ActivityEvents).map((it) => setTypes(it, ActivityEvents[it])).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
-  const pretext = setPretext(typeUpperCase);
+  const pretext = setPretext(type);
 
   const optionAndDestinationTemplate = getOptionsAndDestinationTemplate(optionsList, options, destination, images);
 
@@ -160,13 +149,13 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Transfer</legend>
-            ${transferTypes.toLowerCase()}
+            ${transferTypes}
           </fieldset>
 
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Activity</legend>
 
-            ${activityTypes.toLowerCase()}
+            ${activityTypes}
 
           </fieldset>
         </div>
@@ -174,7 +163,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${typeUpperCase} ${pretext}
+          ${type} ${pretext}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCreateForm && !destination ? `` : `${destination}`}" list="destination-list-1">
         <datalist id="destination-list-1">
@@ -351,7 +340,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     const form = document.querySelector(`.event--edit`);
     const formData = new FormData(form);
 
-    return parseFormData(formData, form, this._flatpickrStart, this._flatpickrEnd);
+    return parseFormData(formData, form, this._flatpickrStart, this._flatpickrEnd, this._type);
   }
 
   setDeleteButtonClickHandler(handler) {
@@ -395,7 +384,7 @@ export default class EditTripForm extends AbstractSmartComponent {
         return;
       }
 
-      this._type = evt.target.innerText;
+      this._type = evt.target.control.value;
       this.rerender();
     });
   }

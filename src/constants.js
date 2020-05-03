@@ -1,8 +1,4 @@
-
-const Events = {
-  CHECKIN: `Check-in`,
-  RESTAURANT: `Restaurant`,
-  SIGHTSEEING: `Sightseeing`,
+export const TransferEvents = {
   TAXI: `Taxi`,
   BUS: `Bus`,
   TRAIN: `Train`,
@@ -10,6 +6,25 @@ const Events = {
   TRANSPORT: `Transport`,
   DRIVE: `Drive`,
   FLIGHT: `Flight`
+};
+
+export const ActivityEvents = {
+  CHECKIN: `Check-in`,
+  RESTAURANT: `Restaurant`,
+  SIGHTSEEING: `Sightseeing`,
+};
+
+export const Events = {
+  TAXI: `Taxi`,
+  BUS: `Bus`,
+  TRAIN: `Train`,
+  SHIP: `Ship`,
+  TRANSPORT: `Transport`,
+  DRIVE: `Drive`,
+  FLIGHT: `Flight`,
+  CHECKIN: `Check-in`,
+  RESTAURANT: `Restaurant`,
+  SIGHTSEEING: `Sightseeing`,
 };
 
 export const FilterType = {
@@ -20,23 +35,20 @@ export const FilterType = {
 
 
 export const EVENTS_PRETEXTS = {
-  [Events.CHECKIN]: `in`,
-  [Events.RESTAURANT]: `in`,
-  [Events.SIGHTSEEING]: `in`,
-  [Events.TAXI]: `to`,
-  [Events.BUS]: `to`,
-  [Events.TRAIN]: `to`,
-  [Events.SHIP]: `to`,
-  [Events.TRANSPORT]: `to`,
-  [Events.DRIVE]: `to`,
-  [Events.FLIGHT]: `to`
+  [ActivityEvents.CHECKIN]: `in`,
+  [ActivityEvents.RESTAURANT]: `in`,
+  [ActivityEvents.SIGHTSEEING]: `in`,
+  [TransferEvents.TAXI]: `to`,
+  [TransferEvents.BUS]: `to`,
+  [TransferEvents.TRAIN]: `to`,
+  [TransferEvents.SHIP]: `to`,
+  [TransferEvents.TRANSPORT]: `to`,
+  [TransferEvents.DRIVE]: `to`,
+  [TransferEvents.FLIGHT]: `to`
 };
 
-export const TYPES_POINT_TRANSFER = [Events.TAXI, Events.BUS, Events.TRAIN, Events.SHIP, Events.TRANSPORT, Events.DRIVE, Events.FLIGHT];
-export const TYPES_POINT_ACTIVITY = [Events.CHECKIN, Events.RESTAURANT, Events.SIGHTSEEING];
-export const TYPES_POINT = Object.values(Events);
+export const TYPES_POINT = [...Object.keys(TransferEvents), ...Object.keys(ActivityEvents)];
 export const NAVIGATION_ELEMENTS = [`Table`, `Stats`];
-export const FILTER_ELEMENTS = [`everything`, `future`, `past`];
 export const SORT_ELEMENTS = [`event`, `time`, `price`];
 export const DESTINATIONS_POINT = [`Amsterdam`, `Geneva`, `Milan`, `Chamonix`];
 export const OPTIONS = [`Order Uber`, `Add luggage`, `Rent a car`, `Add breakfast`, `Book tickets`, `Choose seats`, `Add meal`];

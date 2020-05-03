@@ -10,7 +10,7 @@ import {SORT_ELEMENTS} from "../constants.js";
 
 const mainTripElement = document.querySelector(`.trip-main`);
 
-const getPointStructure = (points) => {
+const getPointsStructure = (points) => {
   const daysCopy = points.slice();
 
   daysCopy.sort((a, b) => a.date[0] - b.date[0]);
@@ -35,7 +35,7 @@ const getPointStructure = (points) => {
 const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPointComponent) => {
   const tripDaysElement = document.querySelector(`.trip-days`);
 
-  const dayStructure = getPointStructure(points);
+  const dayStructure = getPointsStructure(points);
   const structureDates = Array.from(dayStructure.keys());
 
 
