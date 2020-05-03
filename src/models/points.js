@@ -15,12 +15,12 @@ export default class Points {
     return getTasksByFilter(this._points, this._activeFilterType);
   }
 
-  getTasksAll() {
+  getPointsAll() {
     return this._points;
   }
 
-  setPoints(tasks) {
-    this._points = Array.from(tasks);
+  setPoints(points) {
+    this._points = Array.from(points);
     this._callHandlers(this._dataChangeHandlers);
   }
 
@@ -57,8 +57,8 @@ export default class Points {
     return true;
   }
 
-  addPoint(task) {
-    this._points = [].concat(task, this._points);
+  addPoint(point) {
+    this._points = [].concat(point, this._points);
     this._callHandlers(this._dataChangeHandlers);
   }
 

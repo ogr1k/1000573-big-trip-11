@@ -19,42 +19,10 @@ const POINTS_COUNT = 15;
 const AUTHORIZATION = `Basic personal123`;
 
 const data = new API(AUTHORIZATION);
-console.log(data.getPoints());
 
 const days = generateDays(POINTS_COUNT);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(days);
-
-const daysCopy = days.slice();
-
-daysCopy.sort((a, b) => a.date[0] - b.date[0]);
-
-const dayStructure = new Map();
-dayStructure.set(daysCopy[0].date[0], [daysCopy[0]]);
-
-const slicedDayStructure = daysCopy.slice(1);
-const createStructure = () => {
-  slicedDayStructure.map((item) => {
-    const keysArray = Array.from(dayStructure.keys());
-    const currentLastKey = keysArray[keysArray.length - 1];
-    const currentItemDate = item.date[0];
-    if (currentLastKey === currentItemDate) {
-      dayStructure.get(keysArray[keysArray.length - 1]).push(item);
-    } else {
-      dayStructure.set(item.date[0], [item]);
-    }
-  });
-};
-
-const keysArray = dayStructure.keys();
-console.log(keysArray.length);
-
-createStructure();
-
-
-console.log(dayStructure);
-
-// console.log([].concat(dayStructure.values()));
 
 const mainTripElement = document.querySelector(`.trip-main`);
 render(mainTripElement, new InfoSectionTemplate(), RenderPosition.AFTERBEGIN);
