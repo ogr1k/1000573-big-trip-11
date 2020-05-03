@@ -33,12 +33,12 @@ const getPointsStructure = (points) => {
 };
 
 const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPointComponent) => {
-  const tripDaysElement = document.querySelector(`.trip-days`);
 
   if (points.length === 0) {
     render(noPointContainer.getElement(), noPointComponent, RenderPosition.BEFOREEND);
     return null;
   }
+  const tripDaysElement = document.querySelector(`.trip-days`);
 
   const dayStructure = getPointsStructure(points);
   const structureDates = Array.from(dayStructure.keys());

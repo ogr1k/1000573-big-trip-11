@@ -14,7 +14,7 @@ import {findLastElement} from "./utils/common.js";
 
 import {NAVIGATION_ELEMENTS} from "./constants.js";
 
-const POINTS_COUNT = 3;
+const POINTS_COUNT = 15;
 
 const days = generateDays(POINTS_COUNT);
 const pointsModel = new PointsModel();
