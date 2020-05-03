@@ -14,18 +14,7 @@ export const ActivityEvents = {
   SIGHTSEEING: `Sightseeing`,
 };
 
-export const Events = {
-  TAXI: `Taxi`,
-  BUS: `Bus`,
-  TRAIN: `Train`,
-  SHIP: `Ship`,
-  TRANSPORT: `Transport`,
-  DRIVE: `Drive`,
-  FLIGHT: `Flight`,
-  CHECKIN: `Check-in`,
-  RESTAURANT: `Restaurant`,
-  SIGHTSEEING: `Sightseeing`,
-};
+export const Events = Object.assign({}, ActivityEvents, TransferEvents);
 
 export const FilterType = {
   EVERYTHING: `everything`,
@@ -47,7 +36,7 @@ export const EVENTS_PRETEXTS = {
   [TransferEvents.FLIGHT]: `to`
 };
 
-export const TYPES_POINT = [...Object.keys(TransferEvents), ...Object.keys(ActivityEvents)];
+export const TYPES_POINT = [...Object.values(TransferEvents), ...Object.values(ActivityEvents)];
 export const NAVIGATION_ELEMENTS = [`Table`, `Stats`];
 export const SORT_ELEMENTS = [`event`, `time`, `price`];
 export const DESTINATIONS_POINT = [`Amsterdam`, `Geneva`, `Milan`, `Chamonix`];

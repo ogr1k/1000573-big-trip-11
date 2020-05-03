@@ -30,7 +30,7 @@ const getFinalDifferenceResult = (startTime, endTime) => {
 
 const createDayElement = (data, elementIndex) => {
   let {type, destination, price} = data;
-  type = Events[type];
+  type = Events[type.replace(`-`, ``).toUpperCase()];
   const startTime = data.date[0];
   const endTime = data.date[1];
   const formattedStartTime = formatTime(startTime);

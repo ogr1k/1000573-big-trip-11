@@ -8,7 +8,6 @@ import "flatpickr/dist/flatpickr.min.css";
 import moment from "moment";
 import {EmptyPoint} from "../controllers/point.js";
 
-
 const createOption = (nameElement, priceElement, typeElement) => {
   return {
     name: nameElement,
@@ -32,7 +31,7 @@ const parseFormData = (formData, form, start, end, parsedType) => {
     destination: formData.get(`event-destination`),
     price: formData.get(`event-price`),
     date: [moment(start.selectedDates[0]), moment(end.selectedDates[0])],
-    type: parsedType,
+    type: Events[parsedType.toUpperCase()],
     options: optionsArray
   };
 };
@@ -75,15 +74,18 @@ const renderOption = (option, price, index) => {
       `);
 };
 
-const setTypes = (enumType, type) => {
-  const lowerCasedType = type.toLowerCase();
-  return (`
+const setTypes = (types, activeType) => (
+  Object.entries(types).map((type) => {
+    const key = type[0];
+    const value = type[1];
+    return (`
     <div class="event__type-item">
-    <input id="event-type-${lowerCasedType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${enumType}">
-    <label class="event__type-label  event__type-label--${lowerCasedType}" for="event-type-${lowerCasedType}-1">${type}</label>
+    <input id="event-type-${value.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${key}" ${value === activeType ? `checked` : ``}>
+    <label class="event__type-label  event__type-label--${value.toLowerCase()}" for="event-type-${value.toLowerCase()}-1">${value}</label>
     </div>
   `);
-};
+  })
+);
 
 const renderImages = (image) => {
   return (`<img class="event__photo" src="${image}" alt="Event photo"/>`);
@@ -107,7 +109,7 @@ const checkIsValidDestination = (element) => {
 const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const isCreateForm = (itemsData === EmptyPoint);
   const id = elements.id;
-  let type = Events[elements.type];
+  let type = Events[elements.type.replace(`-`, ``).toUpperCase()];
   const destination = elements.destination;
   const date = elements.date;
 
@@ -129,8 +131,8 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   if (isValidDestination) {
     images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
   }
-  const transferTypes = Object.keys(TransferEvents).map((it) => setTypes(it, TransferEvents[it])).join(`\n`);
-  const activityTypes = Object.keys(ActivityEvents).map((it) => setTypes(it, ActivityEvents[it])).join(`\n`);
+  const transferTypes = setTypes(TransferEvents, type).join(`\n`);
+  const activityTypes = setTypes(ActivityEvents, type).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
   const pretext = setPretext(type);
 
@@ -322,9 +324,9 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
-    const formElement = document.querySelector(`.event--edit`);
-    const flagElement = formElement.querySelector(`.event__rollup-btn`);
-    if (flagElement) {
+    const rollUpButtonElement = document.querySelector(`.event__rollup-btn`);
+
+    if (this.getElement().contains(rollUpButtonElement)) {
       this.setOnCloseRollupClick(this._clickHandler);
     }
 

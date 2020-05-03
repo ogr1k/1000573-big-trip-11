@@ -6,7 +6,6 @@ import TripSectionTemplate from "./components/trip-section.js";
 import TripController from "./controllers/trip.js";
 import PointsModel from "./models/points.js";
 import FilterController from "./controllers/filter.js";
-import API from "./api.js";
 
 import {generateDays} from "./mock/item.js";
 
@@ -16,13 +15,11 @@ import {findLastElement} from "./utils/common.js";
 import {NAVIGATION_ELEMENTS} from "./constants.js";
 
 const POINTS_COUNT = 15;
-const AUTHORIZATION = `Basic personal123`;
-
-const data = new API(AUTHORIZATION);
 
 const days = generateDays(POINTS_COUNT);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(days);
+
 
 const mainTripElement = document.querySelector(`.trip-main`);
 render(mainTripElement, new InfoSectionTemplate(), RenderPosition.AFTERBEGIN);

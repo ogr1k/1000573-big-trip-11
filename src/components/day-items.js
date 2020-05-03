@@ -6,7 +6,7 @@ const createDayItemsTemplate = (date, dayCount) => {
     `<li class="trip-days__item  day">
           <div class="day__info">
               <span class="day__counter">${dayCount}</span>
-              <time class="day__date" datetime="2019-03-19">${date}</time>
+              <time class="day__date" datetime="${date}">${date}</time>
           </div>
           <ul class="trip-events__list">
           </ul>

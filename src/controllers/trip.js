@@ -11,7 +11,7 @@ import {SORT_ELEMENTS} from "../constants.js";
 const mainTripElement = document.querySelector(`.trip-main`);
 
 const getPointsStructure = (points) => {
-  const daysCopy = points.slice();
+  const daysCopy = [...points];
 
   daysCopy.sort((a, b) => a.date[0] - b.date[0]);
 
@@ -35,6 +35,11 @@ const getPointsStructure = (points) => {
 const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPointComponent) => {
   const tripDaysElement = document.querySelector(`.trip-days`);
 
+  if (points.length === 0) {
+    render(noPointContainer.getElement(), noPointComponent, RenderPosition.BEFOREEND);
+    return undefined;
+  }
+
   const dayStructure = getPointsStructure(points);
   const structureDates = Array.from(dayStructure.keys());
 
@@ -46,27 +51,22 @@ const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPoi
   };
 
 
-  const renderDates = (datesContainer, noPointsComponent) => {
-
-    if (points === null) {
-      render(datesContainer, noPointsComponent, RenderPosition.BEFOREEND);
-      return;
-    }
+  const renderDates = () => {
 
     structureDates.map((item, index) =>{
       renderDay(item, index);
     });
   };
 
-  renderDates(noPointContainer, noPointComponent);
+  renderDates();
 
 
   let pointControllers = [];
   structureDates.map((it, index) => {
-    const pointsTest = dayStructure.get(it);
-    const cont1 = document.querySelectorAll(`.trip-events__list`)[index];
-    return pointsTest.map((item) => {
-      const pointController = new PointController(cont1, onDataChange, onViewChange);
+    const structuredPoints = dayStructure.get(it);
+    const container = document.querySelectorAll(`.trip-events__list`)[index];
+    return structuredPoints.map((item) => {
+      const pointController = new PointController(container, onDataChange, onViewChange);
       pointController.render(item, PointControllerMode.DEFAULT);
 
       pointControllers.push(pointController);
