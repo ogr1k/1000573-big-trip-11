@@ -37,7 +37,7 @@ const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPoi
 
   if (points.length === 0) {
     render(noPointContainer.getElement(), noPointComponent, RenderPosition.BEFOREEND);
-    return undefined;
+    return null;
   }
 
   const dayStructure = getPointsStructure(points);
@@ -121,13 +121,17 @@ export default class TripController {
   }
 
   _removePoints() {
-    this._showedPointControllers.forEach((controller) => controller.destroy());
+    if (this._showedPointControllers.length) {
+      this._showedPointControllers.forEach((controller) => controller.destroy());
+    }
     this._showedPointControllers = [];
   }
 
   _renderPoint(elements) {
     const newPoints = renderPoint(elements, this._onDataChange, this._onViewChange, this._container, this._noPointsComponent);
-    this._showedPointControllers = this._showedPointControllers.concat(newPoints);
+    if (elements.length) {
+      this._showedPointControllers = this._showedPointControllers.concat(newPoints);
+    }
   }
 
   _removeDays() {
@@ -169,7 +173,9 @@ export default class TripController {
   }
 
   _onViewChange() {
-    this._showedPointControllers.forEach((it) => it.setDefaultView());
+    if (this._showedPointControllers.length) {
+      this._showedPointControllers.forEach((it) => it.setDefaultView());
+    }
   }
 
   _onFilterChange() {
