@@ -12,6 +12,7 @@ const DAY_COUNT = 3;
 const mainTripElement = document.querySelector(`.trip-main`);
 
 const renderPoint = (points, onDataChange, onViewChange) => {
+
   return points.map((item) => {
 
     const container = document.querySelectorAll(`.trip-events__list`)[item.parentIndex];
@@ -54,7 +55,7 @@ export default class TripController {
     const onNewEventButtonClick = () => {
       this._onViewChange();
       this.createPoint();
-      this._newEventButtonComponent.disableButton();
+
     };
 
     this._newEventButtonComponent.setOnClick(onNewEventButtonClick);

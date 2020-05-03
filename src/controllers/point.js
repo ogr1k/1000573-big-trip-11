@@ -24,8 +24,6 @@ const renderOptions = (element, currentItem) => {
   render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
 };
 
-let newEventButtonElement;
-
 export default class PointController {
   constructor(container, onDataChange, onViewChange) {
     this._container = container;
@@ -40,12 +38,12 @@ export default class PointController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(day, mode, flag) {
+  render(day, mode) {
     const oldPointComponent = this._pointComponent;
     const oldPointEditComponent = this._pointEditComponent;
     this._mode = mode;
 
-    newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
+    const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
     this._pointComponent = new DayItem(day);
     this._pointEditComponent = new EditTripForm(day);
@@ -53,20 +51,16 @@ export default class PointController {
       evt.preventDefault();
       const data = this._pointEditComponent.getData();
       this._onDataChange(this, day, data);
-      newEventButtonElement.disabled = false;
     };
 
     switch (mode) {
       case Mode.DEFAULT:
+        newEventButtonElement.disabled = false;
         if (oldPointComponent && oldPointEditComponent) {
           replace(this._pointComponent, oldPointComponent);
           replace(this._pointEditComponent, oldPointEditComponent);
 
           this._replaceEditToPoint();
-
-          if (flag) {
-            // перенести элемент в 1 из дней
-          }
 
         } else {
           render(this._container, this._pointComponent, RenderPosition.BEFOREEND);
@@ -77,6 +71,7 @@ export default class PointController {
           remove(oldPointComponent);
           remove(oldPointEditComponent);
         }
+        newEventButtonElement.disabled = true;
         this._pointEditComponent.setOnFormSubmit(onEditFormSubmit);
         document.addEventListener(`keydown`, this._onEscKeyDown);
         render(document.querySelector(`.trip-events__trip-sort`), this._pointEditComponent, RenderPosition.BEFOREEND);

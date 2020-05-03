@@ -9,7 +9,9 @@ const MIN_MINUTES_DIFFERENCE = 1;
 
 const getDate = () => {
   const today = (new Date()).getDate();
-  const startTime = moment(new Date(2020, 4, today, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
+  const dateRange = getRandomIntegerNumber(today, today + 3);
+
+  const startTime = moment(new Date(2020, 4, dateRange, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
   const endTime = moment(startTime).add(getRandomIntegerNumber(MIN_MINUTES_DIFFERENCE, MAX_MINUTES_DIFFERENCE), `minutes`);
 
   return [startTime, endTime];
