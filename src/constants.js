@@ -38,6 +38,5 @@ export const EVENTS_PRETEXTS = {
 
 export const TYPES_POINT = [...Object.values(TransferEvents), ...Object.values(ActivityEvents)];
 export const NAVIGATION_ELEMENTS = [`Table`, `Stats`];
-export const SORT_ELEMENTS = [`event`, `time`, `price`];
 export const DESTINATIONS_POINT = [`Amsterdam`, `Geneva`, `Milan`, `Chamonix`];
 export const OPTIONS = [`Order Uber`, `Add luggage`, `Rent a car`, `Add breakfast`, `Book tickets`, `Choose seats`, `Add meal`];

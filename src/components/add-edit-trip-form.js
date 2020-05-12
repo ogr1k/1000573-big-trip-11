@@ -17,6 +17,7 @@ const createOption = (nameElement, priceElement, typeElement) => {
 };
 
 const parseFormData = (formData, form, start, end, parsedType) => {
+
   const optionNameElement = Array.from(form.querySelectorAll(`.event__offer-title`));
   let optionsArray = [];
   if (optionNameElement) {
@@ -26,13 +27,24 @@ const parseFormData = (formData, form, start, end, parsedType) => {
       optionsArray.push(createOption(it.textContent, optionPrice[index].textContent, optionName));
     });
   }
+
+  const checkIsFavourite = () => {
+    const favouriteInput = form.querySelector(`#event-favorite-1`);
+    if (favouriteInput) {
+      return favouriteInput.hasAttribute(`checked`);
+    } else {
+      return false;
+    }
+  };
+
   return {
     id: form.id,
     destination: formData.get(`event-destination`),
     price: formData.get(`event-price`),
     date: [moment(start.selectedDates[0]), moment(end.selectedDates[0])],
     type: Events[parsedType.toUpperCase()],
-    options: optionsArray
+    options: optionsArray,
+    isFavourite: checkIsFavourite()
   };
 };
 
@@ -112,7 +124,8 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   let type = Events[elements.type.replace(`-`, ``).toUpperCase()];
   const destination = elements.destination;
   const date = elements.date;
-
+  const price = elements.price;
+  const isFavourite = elements.isFavourite;
 
   if (isCreateForm && !type) {
     type = `bus`;
@@ -190,12 +203,12 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isCreateForm ? ` ` : `${itemsData.price}` }">
+        <input class="event__input  event__input--price" id="event-price-1" type="number"  min="1" step="1" name="event-price" value="${price}" autocomplete="off">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidDestination ? `` : `disabled`}>Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${!isValidDestination || price <= 0 ? `disabled` : ``}>Save</button>
       <button class="event__reset-btn" type="reset">${isCreateForm ? `Cancel` : `Delete`}</button>
-      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${itemsData.isFavourite ? `checked` : ``}></input>
+      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavourite ? `checked` : ``}></input>
       <label class="event__favorite-btn" for="event-favorite-1">
                         <span class="visually-hidden">Add to favorite</span>
                         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -234,6 +247,7 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._destination = day.destination;
       this._dates = [...day.date];
       this._price = day.price;
+      this._isFavourite = day.isFavourite;
     }
 
     if (!day) {
@@ -245,6 +259,8 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnDestinationInputChange();
     this.setOnStartDateChanged();
     this.setOnEndDateChanged();
+    this.setOnPriceChanged();
+    this.setOnFavouriteClicked();
   }
 
   rerender() {
@@ -258,8 +274,9 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._type = day.type;
     this._dates = [...day.date];
     this._destination = day.destination;
-    this._price = day.price;
     this._id = day.id;
+    this._price = day.price;
+    this._isFavourite = day.isFavourite;
     this.rerender();
   }
 
@@ -319,7 +336,9 @@ export default class EditTripForm extends AbstractSmartComponent {
       type: this._type,
       destination: this._destination,
       date: this._dates,
-      id: this._id
+      id: this._id,
+      price: this._price,
+      isFavourite: this._isFavourite
     });
   }
 
@@ -335,7 +354,9 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnDestinationInputChange();
     this.setOnStartDateChanged();
     this.setOnEndDateChanged();
+    this.setOnPriceChanged();
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this.setOnFavouriteClicked();
   }
 
   getData() {
@@ -396,5 +417,22 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._destination = evt.target.value;
       this.rerender();
     });
+  }
+
+  setOnPriceChanged() {
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
+      this._price = evt.target.value;
+      this.rerender();
+    });
+  }
+
+  setOnFavouriteClicked() {
+    const favouriteIcon = this.getElement().querySelector(`.event__favorite-icon`);
+    if (favouriteIcon) {
+      this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, () => {
+        this._isFavourite = !this._isFavourite;
+        this.rerender();
+      });
+    }
   }
 }

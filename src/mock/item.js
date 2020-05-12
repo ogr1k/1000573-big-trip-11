@@ -13,14 +13,22 @@ const getDate = () => {
 
   const startTime = moment(new Date(2020, 4, dateRange, getRandomIntegerNumber(0, 23), getRandomIntegerNumber(0, 59)));
   const endTime = moment(startTime).add(getRandomIntegerNumber(MIN_MINUTES_DIFFERENCE, MAX_MINUTES_DIFFERENCE), `minutes`);
+  const diffTime = endTime - startTime;
 
-  return [startTime, endTime];
+  return [startTime, endTime, diffTime];
+};
+
+const getDifference = (date) => {
+  return date[1] - date[0];
 };
 
 
 const generateDayItem = () => {
   const typeElement = getRandomArrayItem(TYPES_POINT);
 
+  const dates = getDate();
+
+  const difference = getDifference(dates);
 
   const destinationPoint = getRandomArrayItem(DESTINATIONS_POINT);
 
@@ -34,7 +42,8 @@ const generateDayItem = () => {
     images: imagesMocks[destinationPoint],
     isFavourite: false,
     parentIndex: getRandomIntegerNumber(0, 3),
-    date: getDate()
+    date: dates,
+    dateDiff: difference
   };
 };
 

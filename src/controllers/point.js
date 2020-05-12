@@ -74,7 +74,7 @@ export default class PointController {
         newEventButtonElement.disabled = true;
         this._pointEditComponent.setOnFormSubmit(onEditFormSubmit);
         document.addEventListener(`keydown`, this._onEscKeyDown);
-        render(document.querySelector(`.trip-events__trip-sort`), this._pointEditComponent, RenderPosition.BEFOREEND);
+        render(document.querySelector(`.trip-events`), this._pointEditComponent, RenderPosition.BEFOREBEGIN, this._container.parentElement);
         break;
     }
 

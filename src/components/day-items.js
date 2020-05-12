@@ -2,6 +2,12 @@ import AbstractComponent from "./abstract-component.js";
 
 
 const createDayItemsTemplate = (date, dayCount) => {
+
+  if (!date && !dayCount) {
+    date = ``;
+    dayCount = ``;
+  }
+
   return (
     `<li class="trip-days__item  day">
           <div class="day__info">
