@@ -300,8 +300,6 @@ export default class EditTripForm extends AbstractSmartComponent {
       altInput: true,
       altFormat: `d/m/y H:i`,
       dateFormat: `d/m/y H:i`,
-      // eslint-disable-next-line
-      time_24hr: true,
       enableTime: true,
       defaultDate: new Date()
     };
