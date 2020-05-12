@@ -1,22 +1,14 @@
 import DayItemsTemplate from "../components/day-items.js";
 import TripDaysListTemplate from "../components/days-list.js";
-import SortTemplate from "../components/sorting.js";
+import SortTemplate, {SortType} from "../components/sorting.js";
 import NoPointsTemplate from "../components/no-points.js";
 import NewEventButton from "../components/new-event-button.js";
 import {RenderPosition, render} from "../utils/render.js";
 import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point.js";
 
-import {SORT_ELEMENTS} from "../constants.js";
 import {FilterType} from "../constants.js";
 
 const mainTripElement = document.querySelector(`.trip-main`);
-
-
-export const SortType = {
-  PRICE: `price`,
-  TIME: `time`,
-  DEFAULT: `event`,
-};
 
 
 const getSortedPoints = (points, sortType) => {
@@ -123,12 +115,14 @@ export default class TripController {
 
     this._showedPointControllers = [];
 
+    this._isSorted = false;
+
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
 
-    this._sortComponent = new SortTemplate(SORT_ELEMENTS);
+    this._sortComponent = new SortTemplate(Object.values(SortType));
     this._daysComponent = new TripDaysListTemplate();
     this._newEventButtonComponent = new NewEventButton();
     this._noPointsComponent = new NoPointsTemplate();
@@ -148,6 +142,7 @@ export default class TripController {
       this._onViewChange();
       this.createPoint();
       this._setDefaultFilterAndSort();
+      this._newEventButtonComponent.getElement().disabled = true;
     };
 
     this._newEventButtonComponent.setOnClick(onNewEventButtonClick);
@@ -162,9 +157,10 @@ export default class TripController {
   }
 
   _setDefaultFilterAndSort() {
-    this._onSortTypeChange(SortType.DEFAULT);
+    this._isSorted = false;
     document.querySelector(`#filter-${FilterType.EVERYTHING}`).checked = true;
     this._pointsModels.setFilter(FilterType.EVERYTHING);
+    this._onSortTypeChange(SortType.DEFAULT);
   }
 
   _removePoints() {
@@ -174,8 +170,8 @@ export default class TripController {
     this._showedPointControllers = [];
   }
 
-  _renderPoint(elements, isSorted = false) {
-    const newPoints = renderPoint(elements, this._onDataChange, this._onViewChange, this._container, this._noPointsComponent, isSorted);
+  _renderPoint(elements) {
+    const newPoints = renderPoint(elements, this._onDataChange, this._onViewChange, this._container, this._noPointsComponent, this._isSorted);
     if (elements.length) {
       this._showedPointControllers = this._showedPointControllers.concat(newPoints);
     }
@@ -234,9 +230,10 @@ export default class TripController {
   _onSortTypeChange(sortType) {
     const sortedPoints = getSortedPoints(this._pointsModels.getPoints(), sortType);
 
-    let isSorted = false;
     if (sortType !== SortType.DEFAULT) {
-      isSorted = true;
+      this._isSorted = true;
+    } else {
+      this._isSorted = false;
     }
 
     const sortInput = this._sortComponent.getElement().querySelector(`#sort-${sortType}`);
@@ -244,6 +241,6 @@ export default class TripController {
 
     this._removePoints();
     this._removeDays();
-    this._renderPoint(sortedPoints, isSorted);
+    this._renderPoint(sortedPoints);
   }
 }

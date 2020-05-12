@@ -90,10 +90,11 @@ const setTypes = (types, activeType) => (
   Object.entries(types).map((type) => {
     const key = type[0];
     const value = type[1];
+    const loweredValue = value.toLowerCase();
     return (`
     <div class="event__type-item">
-    <input id="event-type-${value.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${key}" ${value === activeType ? `checked` : ``}>
-    <label class="event__type-label  event__type-label--${value.toLowerCase()}" for="event-type-${value.toLowerCase()}-1">${value}</label>
+    <input id="event-type-${loweredValue}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${key}" ${value === activeType ? `checked` : ``}>
+    <label class="event__type-label  event__type-label--${loweredValue}" for="event-type-${loweredValue}-1">${value}</label>
     </div>
   `);
   })
@@ -159,7 +160,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" value="">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
