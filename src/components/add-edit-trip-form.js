@@ -346,6 +346,7 @@ export default class EditTripForm extends AbstractSmartComponent {
 
     if (this.getElement().contains(rollUpButtonElement)) {
       this.setOnCloseRollupClick(this._clickHandler);
+      this.setOnFavouriteClick(this._favouriteHandler);
     }
 
     this.setOnFormSubmit(this._submitHandler);
@@ -355,7 +356,6 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnEndDateChanged();
     this.setOnPriceChanged();
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
-    this.setOnFavouriteClick(this._favouriteHandler);
   }
 
   getData() {
