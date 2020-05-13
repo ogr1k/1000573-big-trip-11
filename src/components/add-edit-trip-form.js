@@ -238,6 +238,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._clickHandler = null;
     this._submitHandler = null;
     this._deleteButtonClickHandler = null;
+    this._favouriteHandler = null;
 
     this._flatpickrStart = null;
     this._flatpickrEnd = null;
@@ -261,7 +262,6 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnStartDateChanged();
     this.setOnEndDateChanged();
     this.setOnPriceChanged();
-    this.setOnFavouriteClicked();
   }
 
   rerender() {
@@ -355,7 +355,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnEndDateChanged();
     this.setOnPriceChanged();
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
-    this.setOnFavouriteClicked();
+    this.setOnFavouriteClick(this._favouriteHandler);
   }
 
   getData() {
@@ -396,8 +396,14 @@ export default class EditTripForm extends AbstractSmartComponent {
 
   setOnFormSubmit(handler) {
     this.getElement().addEventListener(`submit`, handler);
-
     this._submitHandler = handler;
+  }
+
+  setOnFavouriteClick(handler) {
+    this.getElement().querySelector(`.event__favorite-icon`).
+    addEventListener(`click`, handler);
+
+    this._favouriteHandler = handler;
   }
 
   setOnEventsListClick() {
@@ -423,15 +429,5 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._price = evt.target.value;
       this.rerender();
     });
-  }
-
-  setOnFavouriteClicked() {
-    const favouriteIcon = this.getElement().querySelector(`.event__favorite-icon`);
-    if (favouriteIcon) {
-      this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, () => {
-        this._isFavourite = !this._isFavourite;
-        this.rerender();
-      });
-    }
   }
 }

@@ -88,12 +88,17 @@ export default class PointController {
       newEventButtonElement.disabled = false;
     });
 
+    const onFavouriteClick = () => {
+      day.isFavourite = !day.isFavourite;
+    };
+
 
     const onRollUpClick = () => {
       this._replacePointToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
       this._pointEditComponent.setOnCloseRollupClick(onCloseRollupClick);
       this._pointEditComponent.setOnFormSubmit(onEditFormSubmit);
+      this._pointEditComponent.setOnFavouriteClick(onFavouriteClick);
       newEventButtonElement.disabled = false;
     };
 

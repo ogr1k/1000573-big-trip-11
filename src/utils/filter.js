@@ -2,10 +2,9 @@ import {FilterType} from "../constants.js";
 
 const getFutureTasks = (points, nowDate) => {
   return points.filter((point) => {
-    const eventEndDate = point.date[1];
-    const pointDate = eventEndDate;
+    const eventStartDate = point.date[0];
+    const pointDate = eventStartDate;
     return nowDate < pointDate;
-
   });
 };
 

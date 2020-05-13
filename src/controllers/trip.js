@@ -17,10 +17,10 @@ const getSortedPoints = (points, sortType) => {
 
   switch (sortType) {
     case SortType.PRICE:
-      sortedPoints = showingPoints.sort((a, b) => a.price - b.price);
+      sortedPoints = showingPoints.sort((a, b) => b.price - a.price);
       break;
     case SortType.TIME:
-      sortedPoints = showingPoints.sort((a, b) => a.dateDiff - b.dateDiff);
+      sortedPoints = showingPoints.sort((a, b) => b.dateDiff - a.dateDiff);
       break;
     case SortType.DEFAULT:
       sortedPoints = showingPoints;
@@ -158,6 +158,7 @@ export default class TripController {
 
   _setDefaultFilterAndSort() {
     this._isSorted = false;
+    this._sortComponent.getElement().querySelector(`.trip-sort__item--day`).textContent = `Day`;
     document.querySelector(`#filter-${FilterType.EVERYTHING}`).checked = true;
     this._pointsModels.setFilter(FilterType.EVERYTHING);
     this._onSortTypeChange(SortType.DEFAULT);
@@ -230,10 +231,14 @@ export default class TripController {
   _onSortTypeChange(sortType) {
     const sortedPoints = getSortedPoints(this._pointsModels.getPoints(), sortType);
 
+    const daySortElement = this._sortComponent.getElement().querySelector(`.trip-sort__item--day`);
+
     if (sortType !== SortType.DEFAULT) {
       this._isSorted = true;
+      daySortElement.textContent = ``;
     } else {
       this._isSorted = false;
+      daySortElement.textContent = `Day`;
     }
 
     const sortInput = this._sortComponent.getElement().querySelector(`#sort-${sortType}`);

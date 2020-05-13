@@ -3,9 +3,9 @@ import AbstractComponent from "./abstract-component.js";
 export const SORT_ELEMENTS = [`event`, `time`, `price`];
 
 export const SortType = {
-  PRICE: `price`,
-  TIME: `time`,
   DEFAULT: `event`,
+  TIME: `time`,
+  PRICE: `price`,
 };
 
 
@@ -24,7 +24,7 @@ const createSortElement = (name, isChecked) => {
 
 
 const createSortTemplate = () => {
-  const sorts = SORT_ELEMENTS.map((it, index) => createSortElement(it, index === 0)).join(`\n`);
+  const sorts = Object.values(SortType).map((it, index) => createSortElement(it, index === 0)).join(`\n`);
   return (
     `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
         <span class="trip-sort__item  trip-sort__item--day">Day</span>
