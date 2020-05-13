@@ -57,5 +57,9 @@ const finalSumm = summ.reduce((accumulator, currentvalue) => {
 }, 0);
 
 tripCostElement.innerHTML = `${finalSumm}`;
-
 export {days};
+
+
+// const AUTHORIZATION = `Basic personal123`;
+
+// const data = new API(AUTHORIZATION);

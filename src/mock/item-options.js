@@ -1,4 +1,4 @@
-import {TYPES_POINT, OPTIONS} from "../constants.js";
+import {TYPES_POINT, OPTIONS, Events} from "../constants.js";
 import {getRandomIntegerNumber, getRandomArrayItem} from "../utils/common.js";
 
 
@@ -17,3 +17,38 @@ const generateOptions = () => {
 generateOptions();
 
 export {optionsMocks};
+
+
+const getOpt = () => {
+  let tost = [];
+  for (let i = 0; i < getRandomIntegerNumber(0, 5); i++) {
+    tost.push({
+      title: getRandomArrayItem(OPTIONS),
+      price: Math.round(getRandomIntegerNumber(10, 150) / 10) * 10
+    });
+  }
+  return tost;
+};
+
+let tester1 = [];
+const tester = () => {
+  for (const item of Object.values(Events)) {
+    tester1.push({
+      type: item,
+      offers: getOpt()
+    });
+  }
+  return tester1;
+};
+
+tester();
+
+const findOptions = (element) => {
+  for (let i = 0; i < tester1.length; i++) {
+    if (tester1[i].type === element) {
+      return tester1[i].offers;
+    }
+  }
+};
+
+export {findOptions};

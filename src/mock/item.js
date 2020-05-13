@@ -1,6 +1,6 @@
 import {getRandomArrayItem, getRandomIntegerNumber, createOptions} from "../utils/common.js";
 import {TYPES_POINT, DESTINATIONS_POINT} from "../constants.js";
-import {optionsMocks} from "../mock/item-options.js";
+import {optionsMocks, findOptions} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "./item-description-images.js";
 import moment from "moment";
 
@@ -32,12 +32,14 @@ const generateDayItem = () => {
 
   const destinationPoint = getRandomArrayItem(DESTINATIONS_POINT);
 
+  const opt = findOptions(typeElement);
+
   return {
     id: String(new Date() + Math.random()),
     type: typeElement,
     destination: destinationPoint,
     price: Math.round(getRandomIntegerNumber(10, 50) / 10) * 10,
-    options: createOptions(typeElement, optionsMocks),
+    offers: opt.slice(0, 1),
     description: descriptionMocks[destinationPoint],
     images: imagesMocks[destinationPoint],
     isFavourite: false,

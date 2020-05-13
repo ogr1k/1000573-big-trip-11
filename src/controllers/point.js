@@ -17,7 +17,7 @@ export const EmptyPoint = {
   type: `bus`,
   date: [moment(new Date()), moment(new Date())],
   price: ``,
-  options: []
+  offers: []
 };
 
 const renderOptions = (element, currentItem) => {
@@ -105,7 +105,7 @@ export default class PointController {
     this._pointComponent.setOnRollupClick(onRollUpClick);
 
     const optionsContainer = this._pointComponent.getElement().querySelector(`.event__selected-offers`);
-    day.options.map((option) => renderOptions(optionsContainer, option)).join(`\n`);
+    day.offers.map((option) => renderOptions(optionsContainer, option)).join(`\n`);
   }
 
   destroy() {

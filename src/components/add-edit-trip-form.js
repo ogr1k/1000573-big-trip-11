@@ -1,32 +1,43 @@
 import {TransferEvents, ActivityEvents, DESTINATIONS_POINT, Events} from "../constants.js";
-import {setPretext, createOptions} from "../utils/common.js";
+import {setPretext} from "../utils/common.js";
 import AbstractSmartComponent from "./abstact-smart-components.js";
-import {optionsMocks} from "../mock/item-options.js";
+import {findOptions} from "../mock/item-options.js";
 import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import moment from "moment";
 import {EmptyPoint} from "../controllers/point.js";
 
-const createOption = (nameElement, priceElement, typeElement) => {
+const createOption = (nameElement, priceElement) => {
   return {
-    name: nameElement,
+    title: nameElement,
     price: priceElement,
-    type: typeElement
   };
 };
 
+const checkIsNewOffer = (currentCheckedOffers, newCheckedOffer) => {
+  for (const offer of currentCheckedOffers) {
+    if (offer.title === newCheckedOffer.title) {
+      return false;
+    }
+  }
+  return true;
+};
+
+
 const parseFormData = (formData, form, start, end, parsedType) => {
 
-  const optionNameElement = Array.from(form.querySelectorAll(`.event__offer-title`));
-  let optionsArray = [];
-  if (optionNameElement) {
-    const optionName = optionNameElement.textContent;
-    const optionPrice = form.querySelectorAll(`.event__offer-price`);
-    optionNameElement.map((it, index) => {
-      optionsArray.push(createOption(it.textContent, optionPrice[index].textContent, optionName));
-    });
-  }
+  const optionNameElement = Array.from(form.querySelectorAll(`.event__offer-checkbox:checked`));
+
+  let options = [];
+  optionNameElement.map((it) => {
+    const id = it.id;
+    const label = form.querySelector(`label[for=${id}]`);
+    const title = label.querySelector(`.event__offer-title`).textContent;
+    const price = Number(label.querySelector(`.event__offer-price`).textContent);
+    options.push(createOption(title, price));
+  });
+
 
   const checkIsFavourite = () => {
     const favouriteInput = form.querySelector(`#event-favorite-1`);
@@ -43,7 +54,7 @@ const parseFormData = (formData, form, start, end, parsedType) => {
     price: formData.get(`event-price`),
     date: [moment(start.selectedDates[0]), moment(end.selectedDates[0])],
     type: Events[parsedType.toUpperCase()],
-    options: optionsArray,
+    offers: options,
     isFavourite: checkIsFavourite()
   };
 };
@@ -73,10 +84,10 @@ const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destinati
     </section>`);
 };
 
-const renderOption = (option, price, index) => {
+const renderOption = (option, price, index, isChecked) => {
   return (`
             <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage" ${isChecked ? `checked` : ``}>
             <label class="event__offer-label" for="event-offer-luggage-${index + 1}">
               <span class="event__offer-title">${option}</span>
               &plus;
@@ -119,24 +130,31 @@ const checkIsValidDestination = (element) => {
   return false;
 };
 
+
+const findIsCheckedOption = (element, checkedOptions) => {
+  for (const tester of checkedOptions) {
+    if (element === tester.title) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   const isCreateForm = (itemsData === EmptyPoint);
   const id = elements.id;
-  let type = Events[elements.type.replace(`-`, ``).toUpperCase()];
+  const type = Events[elements.type.replace(`-`, ``).toUpperCase()];
   const destination = elements.destination;
   const date = elements.date;
   const price = elements.price;
   const isFavourite = elements.isFavourite;
 
-  if (isCreateForm && !type) {
-    type = `bus`;
-  }
-
-  const optionsList = createOptions(type, optionsMocks);
+  const optionsList = findOptions(type);
+  const checkedOptions = elements.offers;
 
   let options;
   if (optionsList.length >= 1) {
-    options = optionsList.map((it, index) => renderOption(it.name, it.price, index)).join(`\n`);
+    options = optionsList.map((it, index) => renderOption(it.title, it.price, index, findIsCheckedOption(it.title, checkedOptions))).join(`\n`);
   }
 
   const isValidDestination = checkIsValidDestination(destination);
@@ -250,6 +268,7 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._dates = [...day.date];
       this._price = day.price;
       this._isFavourite = day.isFavourite;
+      this._offers = day.offers;
     }
 
     if (!day) {
@@ -262,6 +281,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnStartDateChanged();
     this.setOnEndDateChanged();
     this.setOnPriceChanged();
+    this.setOnOfferClick();
   }
 
   rerender() {
@@ -278,6 +298,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._id = day.id;
     this._price = day.price;
     this._isFavourite = day.isFavourite;
+    this._offers = day.offers;
     this.rerender();
   }
 
@@ -337,7 +358,8 @@ export default class EditTripForm extends AbstractSmartComponent {
       date: this._dates,
       id: this._id,
       price: this._price,
-      isFavourite: this._isFavourite
+      isFavourite: this._isFavourite,
+      offers: this._offers
     });
   }
 
@@ -356,6 +378,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnEndDateChanged();
     this.setOnPriceChanged();
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this.setOnOfferClick();
   }
 
   getData() {
@@ -413,6 +436,7 @@ export default class EditTripForm extends AbstractSmartComponent {
       }
 
       this._type = evt.target.control.value;
+      this._offers = [];
       this.rerender();
     });
   }
@@ -428,6 +452,26 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
       this._price = evt.target.value;
       this.rerender();
+    });
+  }
+
+  setOnOfferClick() {
+    const offersElements = this.getElement().querySelectorAll(`.event__offer-label`);
+
+    offersElements.forEach((element) => {
+      element.addEventListener(`click`, (evt) => {
+
+
+        if (!evt.target.control.checked) {
+          const title = evt.target.querySelector(`.event__offer-title`).innerText;
+          const price = Number(evt.target.querySelector(`.event__offer-price`).innerText);
+          const newCheckedOffer = createOption(title, price);
+          if (checkIsNewOffer(this._offers, newCheckedOffer)) {
+            this._offers.push(newCheckedOffer);
+            this.rerender();
+          }
+        }
+      });
     });
   }
 }
