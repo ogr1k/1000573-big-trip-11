@@ -24,21 +24,7 @@ const checkIsNewOffer = (currentCheckedOffers, newCheckedOffer) => {
   return true;
 };
 
-
-const parseFormData = (formData, form, start, end, parsedType) => {
-
-  const optionNameElement = Array.from(form.querySelectorAll(`.event__offer-checkbox:checked`));
-
-  let options = [];
-  optionNameElement.map((it) => {
-    const id = it.id;
-    const label = form.querySelector(`label[for=${id}]`);
-    const title = label.querySelector(`.event__offer-title`).textContent;
-    const price = Number(label.querySelector(`.event__offer-price`).textContent);
-    options.push(createOption(title, price));
-  });
-
-
+const parseFormData = (formData, form, startDate, endDate, parsedType, checkedOffers) => {
   const checkIsFavourite = () => {
     const favouriteInput = form.querySelector(`#event-favorite-1`);
     if (favouriteInput) {
@@ -52,9 +38,9 @@ const parseFormData = (formData, form, start, end, parsedType) => {
     id: form.id,
     destination: formData.get(`event-destination`),
     price: formData.get(`event-price`),
-    date: [moment(start.selectedDates[0]), moment(end.selectedDates[0])],
-    type: Events[parsedType.toUpperCase()],
-    offers: options,
+    date: [moment(startDate.selectedDates[0]), moment(endDate.selectedDates[0])],
+    type: Events[parsedType.replace(`-`, ``).toUpperCase()],
+    offers: checkedOffers,
     isFavourite: checkIsFavourite()
   };
 };
@@ -131,9 +117,9 @@ const checkIsValidDestination = (element) => {
 };
 
 
-const findIsCheckedOption = (element, checkedOptions) => {
-  for (const tester of checkedOptions) {
-    if (element === tester.title) {
+const findIsCheckedOption = (element, checkedOffers) => {
+  for (const offer of checkedOffers) {
+    if (element === offer.title) {
       return true;
     }
   }
@@ -268,7 +254,7 @@ export default class EditTripForm extends AbstractSmartComponent {
       this._dates = [...day.date];
       this._price = day.price;
       this._isFavourite = day.isFavourite;
-      this._offers = day.offers;
+      this._offers = [...day.offers];
     }
 
     if (!day) {
@@ -298,7 +284,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._id = day.id;
     this._price = day.price;
     this._isFavourite = day.isFavourite;
-    this._offers = day.offers;
+    this._offers = [...day.offers];
     this.rerender();
   }
 
@@ -358,15 +344,13 @@ export default class EditTripForm extends AbstractSmartComponent {
       date: this._dates,
       id: this._id,
       price: this._price,
+      offers: this._offers,
       isFavourite: this._isFavourite,
-      offers: this._offers
     });
   }
 
   recoveryListeners() {
-    const rollUpButtonElement = document.querySelector(`.event__rollup-btn`);
-
-    if (this.getElement().contains(rollUpButtonElement)) {
+    if (this.getElement().querySelector(`.event__rollup-btn`)) {
       this.setOnCloseRollupClick(this._clickHandler);
       this.setOnFavouriteClick(this._favouriteHandler);
     }
@@ -385,7 +369,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     const form = document.querySelector(`.event--edit`);
     const formData = new FormData(form);
 
-    return parseFormData(formData, form, this._flatpickrStart, this._flatpickrEnd, this._type);
+    return parseFormData(formData, form, this._flatpickrStart, this._flatpickrEnd, this._type, this._offers);
   }
 
   setDeleteButtonClickHandler(handler) {
@@ -461,15 +445,21 @@ export default class EditTripForm extends AbstractSmartComponent {
     offersElements.forEach((element) => {
       element.addEventListener(`click`, (evt) => {
 
+        const title = evt.currentTarget.querySelector(`.event__offer-title`).textContent;
+        const price = Number(evt.currentTarget.querySelector(`.event__offer-price`).textContent);
+        const newClickedOffer = createOption(title, price);
+        const isNewOffer = checkIsNewOffer(this._offers, newClickedOffer);
 
-        if (!evt.target.control.checked) {
-          const title = evt.target.querySelector(`.event__offer-title`).innerText;
-          const price = Number(evt.target.querySelector(`.event__offer-price`).innerText);
-          const newCheckedOffer = createOption(title, price);
-          if (checkIsNewOffer(this._offers, newCheckedOffer)) {
-            this._offers.push(newCheckedOffer);
+
+        if (!evt.currentTarget.control.checked) {
+          if (isNewOffer) {
+            this._offers.push(newClickedOffer);
             this.rerender();
           }
+        } else {
+          this._offers = this._offers.filter((offer) => {
+            return offer.title !== newClickedOffer.title;
+          });
         }
       });
     });
