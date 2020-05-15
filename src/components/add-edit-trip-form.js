@@ -350,6 +350,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
+
     if (this.getElement().querySelector(`.event__rollup-btn`)) {
       this.setOnCloseRollupClick(this._clickHandler);
       this.setOnFavouriteClick(this._favouriteHandler);
@@ -419,8 +420,11 @@ export default class EditTripForm extends AbstractSmartComponent {
         return;
       }
 
-      this._type = evt.target.control.value;
-      this._offers = [];
+      if (evt.target.control.value !== this._type.replace(`-`, ``).toUpperCase()) {
+        this._type = evt.target.control.value;
+        this._offers = [];
+      }
+
       this.rerender();
     });
   }
@@ -454,7 +458,6 @@ export default class EditTripForm extends AbstractSmartComponent {
         if (!evt.currentTarget.control.checked) {
           if (isNewOffer) {
             this._offers.push(newClickedOffer);
-            this.rerender();
           }
         } else {
           this._offers = this._offers.filter((offer) => {

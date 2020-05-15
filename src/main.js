@@ -2,6 +2,7 @@ import InfoSectionTemplate from "./components/information-section.js";
 import InfoTemplate from "./components/information";
 import PriceTemplate from "./components/price.js";
 import TabsTemplate from "./components/tabs.js";
+import Statistics from "./components/statistic.js";
 import TripSectionTemplate from "./components/trip-section.js";
 import TripController from "./controllers/trip.js";
 import PointsModel from "./models/points.js";
@@ -10,7 +11,7 @@ import FilterController from "./controllers/filter.js";
 import {generateDays} from "./mock/item.js";
 
 import {RenderPosition, render} from "./utils/render.js";
-import {findLastElement} from "./utils/common.js";
+// import {findLastElement} from "./utils/common.js";
 
 import {NAVIGATION_ELEMENTS} from "./constants.js";
 
@@ -41,23 +42,28 @@ render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 
 const tripController = new TripController(tripSectionComponent, pointsModel);
-
 tripController.render(days);
+tripController.hide();
 
-const daysListElements = Array.from(document.querySelectorAll(`.trip-events__list`));
-const destination = daysListElements.map((it) => findLastElement(`.destination__item`, it).textContent).join(` &mdash; `);
+const stat = new Statistics(pointsModel);
+render(mainContainerElement, stat, RenderPosition.BEFOREEND);
 
-document.querySelector(`.trip-info__title`).innerHTML = `${destination}`;
-
-const tripCostElement = document.querySelector(`.trip-info__cost-value`);
-const summ = Array.from(document.querySelectorAll(`.event__price-value`));
-
-const finalSumm = summ.reduce((accumulator, currentvalue) => {
-  return accumulator + Number(currentvalue.textContent);
-}, 0);
-
-tripCostElement.innerHTML = `${finalSumm}`;
 export {days};
+
+
+// const daysListElements = Array.from(document.querySelectorAll(`.trip-events__list`));
+// const destination = daysListElements.map((it) => findLastElement(`.destination__item`, it).textContent).join(` &mdash; `);
+
+// document.querySelector(`.trip-info__title`).innerHTML = `${destination}`;
+
+// const tripCostElement = document.querySelector(`.trip-info__cost-value`);
+// const summ = Array.from(document.querySelectorAll(`.event__price-value`));
+
+// const finalSumm = summ.reduce((accumulator, currentvalue) => {
+//   return accumulator + Number(currentvalue.textContent);
+// }, 0);
+
+// tripCostElement.innerHTML = `${finalSumm}`;
 
 
 // const AUTHORIZATION = `Basic personal123`;
