@@ -34,14 +34,18 @@ const parseFormData = (formData, form, startDate, endDate, parsedType, checkedOf
     }
   };
 
+  const formattedStartDate = moment(startDate.selectedDates[0]);
+  const formattedEndDate = moment(endDate.selectedDates[0]);
+
   return {
     id: form.id,
     destination: formData.get(`event-destination`),
-    price: formData.get(`event-price`),
-    date: [moment(startDate.selectedDates[0]), moment(endDate.selectedDates[0])],
+    price: Number(formData.get(`event-price`)),
+    date: [formattedStartDate, formattedEndDate],
     type: Events[parsedType.replace(`-`, ``).toUpperCase()],
     offers: checkedOffers,
-    isFavourite: checkIsFavourite()
+    isFavourite: checkIsFavourite(),
+    dateDiff: formattedEndDate - formattedStartDate
   };
 };
 

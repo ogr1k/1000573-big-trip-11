@@ -47,6 +47,7 @@ export default class PointController {
 
     this._pointComponent = new DayItem(day);
     this._pointEditComponent = new EditTripForm(day);
+
     const onEditFormSubmit = (evt) => {
       evt.preventDefault();
       const data = this._pointEditComponent.getData();

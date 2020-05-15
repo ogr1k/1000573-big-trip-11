@@ -11,8 +11,6 @@ import FilterController from "./controllers/filter.js";
 import {generateDays} from "./mock/item.js";
 
 import {RenderPosition, render} from "./utils/render.js";
-// import {findLastElement} from "./utils/common.js";
-
 import {NAVIGATION_ELEMENTS} from "./constants.js";
 
 const POINTS_COUNT = 15;
