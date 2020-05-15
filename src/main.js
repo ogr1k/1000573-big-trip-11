@@ -31,7 +31,8 @@ render(infoSectionElement, new InfoTemplate(), RenderPosition.BEFOREEND);
 render(infoSectionElement, new PriceTemplate(), RenderPosition.BEFOREEND);
 
 const filtersContanerElement = document.querySelector(`.trip-controls`);
-render(filtersContanerElement, new TabsTemplate(NAVIGATION_ELEMENTS), RenderPosition.AFTERBEGIN);
+const tabsComponent = new TabsTemplate(NAVIGATION_ELEMENTS);
+render(filtersContanerElement, tabsComponent, RenderPosition.AFTERBEGIN);
 
 const filterController = new FilterController(filtersContanerElement, pointsModel);
 filterController.render();
@@ -43,10 +44,27 @@ render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 const tripController = new TripController(tripSectionComponent, pointsModel);
 tripController.render(days);
-tripController.hide();
 
-const stat = new Statistics(pointsModel);
-render(mainContainerElement, stat, RenderPosition.BEFOREEND);
+const statisticsComponent = new Statistics(pointsModel);
+render(mainContainerElement, statisticsComponent, RenderPosition.BEFOREEND);
+statisticsComponent.hide();
+
+tabsComponent.setOnChange((menuItem) => {
+
+  tabsComponent.setActive(menuItem);
+
+  if (menuItem === `Table`) {
+    statisticsComponent.hide();
+    tripController.show();
+    return;
+  }
+
+  if (menuItem === `Stats`) {
+    tripController.hide();
+    statisticsComponent.show();
+    return;
+  }
+});
 
 export {days};
 

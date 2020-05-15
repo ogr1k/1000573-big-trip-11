@@ -165,11 +165,21 @@ export default class TripController {
   }
 
   _setDefaultFilterAndSort() {
-    this._isSorted = false;
-    this._sortComponent.getElement().querySelector(`.trip-sort__item--day`).textContent = `Day`;
-    document.querySelector(`#filter-${FilterType.EVERYTHING}`).checked = true;
-    this._pointsModels.setFilter(FilterType.EVERYTHING);
-    this._onSortTypeChange(SortType.DEFAULT);
+    if (this._sorted === true) {
+      this._isSorted = false;
+      this._sortComponent.getElement().querySelector(`.trip-sort__item--day`).textContent = `Day`;
+    }
+
+    const filterElement = document.querySelector(`#filter-${FilterType.EVERYTHING}`);
+
+    if (filterElement.checked === false) {
+
+      document.querySelector(`#filter-${FilterType.EVERYTHING}`).checked = true;
+      this._pointsModels.setFilter(FilterType.EVERYTHING);
+      this._onSortTypeChange(SortType.DEFAULT);
+
+    }
+
   }
 
   _removePoints() {
