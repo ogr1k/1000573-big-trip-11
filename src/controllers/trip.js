@@ -52,7 +52,7 @@ const getPointsStructure = (points) => {
   return dayStructure;
 };
 
-const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPointComponent, isSorted) => {
+const renderPoints = (points, onDataChange, onViewChange, noPointContainer, noPointComponent, isSorted, destinationalModel, offerModel) => {
 
   if (points.length === 0) {
     render(noPointContainer.getElement(), noPointComponent, RenderPosition.BEFOREEND);
@@ -74,7 +74,7 @@ const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPoi
     renderDay();
     const container = document.querySelector(`.trip-events__list`);
     points.map((item) => {
-      const pointController = new PointController(container, onDataChange, onViewChange);
+      const pointController = new PointController(container, onDataChange, onViewChange, destinationalModel, offerModel);
       pointController.render(item, PointControllerMode.DEFAULT);
 
       pointControllers.push(pointController);
@@ -97,7 +97,7 @@ const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPoi
       const structuredPoints = dayStructure.get(it);
       const container = document.querySelectorAll(`.trip-events__list`)[index];
       structuredPoints.map((item) => {
-        const pointController = new PointController(container, onDataChange, onViewChange);
+        const pointController = new PointController(container, onDataChange, onViewChange, destinationalModel, offerModel);
         pointController.render(item, PointControllerMode.DEFAULT);
 
         pointControllers.push(pointController);
@@ -109,9 +109,11 @@ const renderPoint = (points, onDataChange, onViewChange, noPointContainer, noPoi
 
 
 export default class TripController {
-  constructor(container, pointsModels, api) {
+  constructor(container, pointsModels, api, destinationalModel, offerModel) {
     this._container = container;
     this._pointsModels = pointsModels;
+    this._destinationalModel = destinationalModel;
+    this._offerModel = offerModel;
 
     this._api = api;
 
@@ -148,6 +150,7 @@ export default class TripController {
     render(container, this._daysComponent, RenderPosition.BEFOREEND);
     render(mainTripElement, this._newEventButtonComponent, RenderPosition.BEFOREEND);
 
+
     const onNewEventButtonClick = () => {
       this._onViewChange();
       this.createPoint();
@@ -162,7 +165,7 @@ export default class TripController {
 
   createPoint() {
     const pointsDay = document.querySelector(`.trip-days__item`);
-    const pointController = new PointController(pointsDay, this._onDataChange, this._onViewChange);
+    const pointController = new PointController(pointsDay, this._onDataChange, this._onViewChange, this._destinationalModel.getDestinations(), this._offerModel.getOffers());
     pointController.render(EmptyPoint, PointControllerMode.ADDING);
   }
 
@@ -192,7 +195,7 @@ export default class TripController {
   }
 
   _renderPoint(elements) {
-    const newPoints = renderPoint(elements, this._onDataChange, this._onViewChange, this._container, this._noPointsComponent, this._isSorted);
+    const newPoints = renderPoints(elements, this._onDataChange, this._onViewChange, this._container, this._noPointsComponent, this._isSorted, this._destinationalModel.getDestinations(), this._offerModel.getOffers());
     if (elements.length) {
       this._showedPointControllers = this._showedPointControllers.concat(newPoints);
     }

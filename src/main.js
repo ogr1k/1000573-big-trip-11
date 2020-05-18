@@ -6,10 +6,10 @@ import Statistics from "./components/statistic.js";
 import TripSectionTemplate from "./components/trip-section.js";
 import TripController from "./controllers/trip.js";
 import PointsModel from "./models/points.js";
+import OfferModel from "./models/offers.js";
+import DestinationModel from "./models/destinations.js";
 import FilterController from "./controllers/filter.js";
 import API from "./api.js";
-
-// import {generateDays} from "./mock/item.js";
 
 import {RenderPosition, render} from "./utils/render.js";
 import {NAVIGATION_ELEMENTS} from "./constants.js";
@@ -18,12 +18,9 @@ const AUTHORIZATION = `Basic er883jdzbdw`;
 
 const api = new API(AUTHORIZATION);
 
-// const POINTS_COUNT = 15;
-
-// const days = generateDays(POINTS_COUNT);
 const pointsModel = new PointsModel();
-
-// pointsModel.setPoints(days);
+const destinationalModel = new DestinationModel();
+const offerModel = new OfferModel();
 
 
 const mainTripElement = document.querySelector(`.trip-main`);
@@ -46,7 +43,7 @@ const tripSectionComponent = new TripSectionTemplate();
 render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 
-const tripController = new TripController(tripSectionComponent, pointsModel, api);
+const tripController = new TripController(tripSectionComponent, pointsModel, api, destinationalModel, offerModel);
 
 const statisticsComponent = new Statistics(pointsModel);
 render(mainContainerElement, statisticsComponent, RenderPosition.BEFOREEND);
@@ -69,17 +66,16 @@ tabsComponent.setOnChange((menuItem) => {
   }
 });
 
-api.getPoints()
-  .then((points) => {
-    pointsModel.setPoints(points);
-    tripController.render();
+api.getDestinations()
+  .then((destinations) => {
+    destinationalModel.setDestinations(destinations);
+    api.getOffers()
+    .then((offers) => {
+      offerModel.setOffers(offers);
+      api.getPoints()
+      .then((points) => {
+        pointsModel.setPoints(points);
+        tripController.render();
+      });
+    });
   });
-
-// const getDestinations = (element) => {
-//   return element;
-// };
-
-// api.getDestinations()
-// .then((dest) => {
-//   getDestinations(dest);
-// });

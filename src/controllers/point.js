@@ -26,11 +26,13 @@ const renderOptions = (element, currentItem) => {
 };
 
 export default class PointController {
-  constructor(container, onDataChange, onViewChange) {
+  constructor(container, onDataChange, onViewChange, destinationOffer, offerModel) {
     this._container = container;
 
     this._pointComponent = null;
     this._pointEditComponent = null;
+    this._offerModel = offerModel;
+    this._destinationOffer = destinationOffer;
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
@@ -47,7 +49,7 @@ export default class PointController {
     const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
     this._pointComponent = new DayItem(day);
-    this._pointEditComponent = new EditTripForm(day);
+    this._pointEditComponent = new EditTripForm(day, this._destinationOffer, this._offerModel);
 
     const onEditFormSubmit = (evt) => {
       evt.preventDefault();

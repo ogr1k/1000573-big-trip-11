@@ -3,14 +3,13 @@ import moment from "moment";
 export default class Point {
   constructor(data) {
     this.destination = data[`destination`].name;
-    this.images = data[`destination`].pictures;
-    this.description = data[`destination`].description;
     this.id = data[`id`];
     this.date = [moment(data[`date_from`]), moment(data[`date_to`])];
     this.isFavourite = Boolean(data[`is_favorite`]);
     this.price = data[`base_price`];
     this.offers = data[`offers`];
     this.type = data[`type`];
+
   }
 
   toRAW() {
@@ -18,7 +17,7 @@ export default class Point {
       "base_price": this.price,
       "date_from": this.date[0],
       "date_to": this.date[1],
-      "destination": this._test,
+      "destination": this.destination,
       "id": this.id,
       "is_favorite": this.isFavourite,
       "offers": this.offers,

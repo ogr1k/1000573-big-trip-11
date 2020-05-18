@@ -24,14 +24,23 @@ const API = class {
     .then(Point.parsePoints);
   }
 
-  // getDestinations() {
-  //   const headers = new Headers();
-  //   headers.append(`Authorization`, this._authorization);
+  getDestinations() {
+    const headers = new Headers();
+    headers.append(`Authorization`, this._authorization);
 
-  //   return fetch(`https://11.ecmascript.pages.academy/big-trip/destinations`, {headers})
-  //   .then(checkStatus)
-  //   .then((response) => response.json());
-  // }
+    return fetch(`https://11.ecmascript.pages.academy/big-trip/destinations`, {headers})
+    .then(checkStatus)
+    .then((response) => response.json());
+  }
+
+  getOffers() {
+    const headers = new Headers();
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(`https://11.ecmascript.pages.academy/big-trip/offers`, {headers})
+    .then(checkStatus)
+    .then((response) => response.json());
+  }
 
   updatePoint(id, data) {
     const headers = new Headers();

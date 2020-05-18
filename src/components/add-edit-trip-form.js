@@ -1,8 +1,6 @@
-import {TransferEvents, ActivityEvents, DESTINATIONS_POINT, Events} from "../constants.js";
+import {TransferEvents, ActivityEvents, Events} from "../constants.js";
 import {setPretext} from "../utils/common.js";
 import AbstractSmartComponent from "./abstact-smart-components.js";
-import {findOptions} from "../mock/item-options.js";
-import {descriptionMocks, imagesMocks} from "../mock/item-description-images.js";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import moment from "moment";
@@ -50,8 +48,8 @@ const parseFormData = (formData, form, startDate, endDate, parsedType, checkedOf
   });
 };
 
-const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createdImages) => {
-  const isValidDestination = checkIsValidDestination(destination);
+const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createdImages, destinationNames) => {
+  const isValidDestination = checkIsValidDestination(destination.name, destinationNames);
   return (`<section class="event__details">
       ${
     optionsList.length >= 1 ?
@@ -64,7 +62,7 @@ const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destinati
 
       ${isValidDestination ? `<section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${descriptionMocks[destination]}</p>
+        <p class="event__destination-description">${destination.description}</p>
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
@@ -103,7 +101,7 @@ const setTypes = (types, activeType) => (
 );
 
 const renderImages = (image) => {
-  return (`<img class="event__photo" src="${image}" alt="Event photo"/>`);
+  return (`<img class="event__photo" src="${image.src}" alt="${image.description}"/>`);
 };
 
 const setDestinationOptions = (destination) => {
@@ -111,9 +109,9 @@ const setDestinationOptions = (destination) => {
 };
 
 
-const checkIsValidDestination = (element) => {
+const checkIsValidDestination = (element, validDestinations) => {
   if (element) {
-    for (const point of DESTINATIONS_POINT) {
+    for (const point of validDestinations) {
       if (element === point) {
         return true;
       }
@@ -131,36 +129,71 @@ const findIsCheckedOption = (element, checkedOffers) => {
   return false;
 };
 
-const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
+const getAvailableOffers = (elementType, offers) => {
+  for (const offer of offers) {
+    if (elementType === offer.type) {
+      return offer;
+    }
+  }
+  return null;
+};
+
+const getDestinationNames = (elements) => {
+  let names = [];
+  elements.map((element) => {
+    names.push(element.name);
+  });
+  return names;
+};
+
+const findCurrentDestination = (currentDestination, allDestinations) => {
+  for (const destination of allDestinations) {
+    if (currentDestination === destination.name) {
+      return destination;
+    }
+  }
+  return false;
+};
+
+const createAddEditTripFormTemplate = (itemsData, allDestinations, allOffers, elements = {}) => {
+
   const isCreateForm = (itemsData === EmptyPoint);
   const id = elements.id;
+
+  const destinationsNames = getDestinationNames(allDestinations);
+  const availableOffers = getAvailableOffers(elements.type.toLowerCase(), allOffers).offers;
+
   const type = Events[elements.type.replace(`-`, ``).toUpperCase()];
   const destination = elements.destination;
+  const currentDestination = findCurrentDestination(destination, allDestinations);
+
+
   const date = elements.date;
   const price = elements.price;
   const isFavourite = elements.isFavourite;
 
-  const optionsList = findOptions(type);
   const checkedOptions = elements.offers;
 
+
   let options;
-  if (optionsList.length >= 1) {
-    options = optionsList.map((it, index) => renderOption(it.title, it.price, index, findIsCheckedOption(it.title, checkedOptions))).join(`\n`);
+  if (availableOffers.length >= 1) {
+    options = availableOffers.map((it, index) => renderOption(it.title, it.price, index, findIsCheckedOption(it.title, checkedOptions))).join(`\n`);
   }
 
-  const isValidDestination = checkIsValidDestination(destination);
+  const isValidDestination = checkIsValidDestination(currentDestination.name, destinationsNames);
+
 
   let images;
   if (isValidDestination) {
-    images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
+    images = currentDestination.pictures.map((it) => renderImages(it)).join(`\n`);
   }
 
   const transferTypes = setTypes(TransferEvents, type).join(`\n`);
   const activityTypes = setTypes(ActivityEvents, type).join(`\n`);
-  const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
+  const destinationOptions = destinationsNames.map((it) => setDestinationOptions(it)).join(`\n`);
   const pretext = setPretext(type);
 
-  const optionAndDestinationTemplate = getOptionsAndDestinationTemplate(optionsList, options, destination, images);
+  const optionAndDestinationTemplate = getOptionsAndDestinationTemplate(availableOffers, options, currentDestination, images, destinationsNames);
 
   return (
     `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post" id="${id}">
@@ -232,7 +265,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
       </button>`}
     </header>
 
-    ${ !isValidDestination && optionsList.length < 1 ? `` :
+    ${ !isValidDestination && availableOffers.length < 1 ? `` :
       optionAndDestinationTemplate}
   </form>`
   );
@@ -240,11 +273,14 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
 
 
 export default class EditTripForm extends AbstractSmartComponent {
-  constructor(day) {
+  constructor(day, destinationModel, offerModel) {
 
     super();
 
     this._day = day;
+
+    this._allDestinations = destinationModel;
+    this._allOfers = offerModel;
 
     this._clickHandler = null;
     this._submitHandler = null;
@@ -345,7 +381,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createAddEditTripFormTemplate(this._day, {
+    return createAddEditTripFormTemplate(this._day, this._allDestinations, this._allOfers, {
       type: this._type,
       destination: this._destination,
       date: this._dates,
