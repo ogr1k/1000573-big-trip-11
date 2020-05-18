@@ -2,6 +2,7 @@ import {RenderPosition, replace, render, remove} from "../utils/render.js";
 import DayItem from "../components/points-element.js";
 import EventOption from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
+import PointModel from "../models/point.js";
 import moment from "moment";
 
 export const Mode = {
@@ -90,7 +91,10 @@ export default class PointController {
     });
 
     const onFavouriteClick = () => {
-      day.isFavourite = !day.isFavourite;
+      const newPoint = PointModel.clone(day);
+      newPoint.isFavourite = !newPoint.isFavourite;
+
+      this._onDataChange(this, day, newPoint);
     };
 
 

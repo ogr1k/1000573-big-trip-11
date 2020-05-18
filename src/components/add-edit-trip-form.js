@@ -7,6 +7,7 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import moment from "moment";
 import {EmptyPoint} from "../controllers/point.js";
+import PointModel from "../models/point.js";
 
 const createOption = (nameElement, priceElement) => {
   return {
@@ -37,7 +38,7 @@ const parseFormData = (formData, form, startDate, endDate, parsedType, checkedOf
   const formattedStartDate = moment(startDate.selectedDates[0]);
   const formattedEndDate = moment(endDate.selectedDates[0]);
 
-  return {
+  return new PointModel({
     id: form.id,
     destination: formData.get(`event-destination`),
     price: Number(formData.get(`event-price`)),
@@ -46,7 +47,7 @@ const parseFormData = (formData, form, startDate, endDate, parsedType, checkedOf
     offers: checkedOffers,
     isFavourite: checkIsFavourite(),
     dateDiff: formattedEndDate - formattedStartDate
-  };
+  });
 };
 
 const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destination, createdImages) => {
@@ -109,6 +110,7 @@ const setDestinationOptions = (destination) => {
   return (`<option value="${destination}"></option>`);
 };
 
+
 const checkIsValidDestination = (element) => {
   if (element) {
     for (const point of DESTINATIONS_POINT) {
@@ -119,7 +121,6 @@ const checkIsValidDestination = (element) => {
   }
   return false;
 };
-
 
 const findIsCheckedOption = (element, checkedOffers) => {
   for (const offer of checkedOffers) {
@@ -153,6 +154,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
   if (isValidDestination) {
     images = imagesMocks[destination].map((it) => renderImages(it)).join(`\n`);
   }
+
   const transferTypes = setTypes(TransferEvents, type).join(`\n`);
   const activityTypes = setTypes(ActivityEvents, type).join(`\n`);
   const destinationOptions = DESTINATIONS_POINT.map((it) => setDestinationOptions(it)).join(`\n`);
@@ -215,7 +217,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
         <input class="event__input  event__input--price" id="event-price-1" type="number"  min="1" step="1" name="event-price" value="${price}" autocomplete="off">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit" ${!isValidDestination || price <= 0 ? `disabled` : ``}>Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${price <= 0 ? `disabled` : ``}>Save</button>
       <button class="event__reset-btn" type="reset">${isCreateForm ? `Cancel` : `Delete`}</button>
       ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavourite ? `checked` : ``}></input>
       <label class="event__favorite-btn" for="event-favorite-1">
@@ -239,6 +241,7 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
 
 export default class EditTripForm extends AbstractSmartComponent {
   constructor(day) {
+
     super();
 
     this._day = day;
