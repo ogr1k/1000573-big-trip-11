@@ -46,7 +46,7 @@ const createDayElement = (data, elementIndex) => {
             <img class="event__type-icon" width="42" height="42" src="img/icons/${type.toLowerCase()}.png"
                 alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${setPretext(type)} <span class="destination__item">${destination}</span></h3>
+        <h3 class="event__title">${type} ${setPretext(type)} <span class="destination__item">${destination.name}</span></h3>
 
         <div class="event__schedule">
             <p class="event__time">

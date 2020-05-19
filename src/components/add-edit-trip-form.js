@@ -7,6 +7,13 @@ import moment from "moment";
 import {EmptyPoint} from "../controllers/point.js";
 import PointModel from "../models/point.js";
 
+
+const DefaultData = {
+  deleteButtonText: `Delete`,
+  saveButtonText: `Save`,
+  cancelButtonText: `Cancel`
+};
+
 const createOption = (nameElement, priceElement) => {
   return {
     title: nameElement,
@@ -23,28 +30,32 @@ const checkIsNewOffer = (currentCheckedOffers, newCheckedOffer) => {
   return true;
 };
 
-const parseFormData = (formData, form, startDate, endDate, parsedType, checkedOffers) => {
-  const checkIsFavourite = () => {
-    const favouriteInput = form.querySelector(`#event-favorite-1`);
-    if (favouriteInput) {
-      return favouriteInput.hasAttribute(`checked`);
-    } else {
-      return false;
+const parseFormData = (formData, form, startDate, endDate, parsedType, checkedOffers, currentDestination) => {
+
+  const favouriteElement = form.querySelector(`#event-favorite-1`);
+
+  const parseIsFavourite = () => {
+    if (favouriteElement) {
+      return favouriteElement.checked;
     }
+    return false;
   };
 
-  const formattedStartDate = moment(startDate.selectedDates[0]);
-  const formattedEndDate = moment(endDate.selectedDates[0]);
+
+  const formattedStartDate = moment(startDate.selectedDates[0]).toISOString();
+  const formattedEndDate = moment(endDate.selectedDates[0]).toISOString();
+
 
   return new PointModel({
-    id: form.id,
-    destination: formData.get(`event-destination`),
-    price: Number(formData.get(`event-price`)),
-    date: [formattedStartDate, formattedEndDate],
-    type: Events[parsedType.replace(`-`, ``).toUpperCase()],
-    offers: checkedOffers,
-    isFavourite: checkIsFavourite(),
-    dateDiff: formattedEndDate - formattedStartDate
+    "id": form.id,
+    "destination": currentDestination,
+    "base_price": Number(formData.get(`event-price`)),
+    "date_from": formattedStartDate,
+    "date_to": formattedEndDate,
+    "type": Events[parsedType.replace(`-`, ``).toUpperCase()],
+    "offers": checkedOffers,
+    "is_favorite": parseIsFavourite(),
+    "dateDiff": formattedEndDate - formattedStartDate
   });
 };
 
@@ -73,10 +84,10 @@ const getOptionsAndDestinationTemplate = (optionsList, createdOptions, destinati
     </section>`);
 };
 
-const renderOption = (option, price, index, isChecked) => {
+const renderOption = (option, price, index, isChecked, isRequesting) => {
   return (`
             <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage" ${isChecked ? `checked` : ``}>
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${index + 1}" type="checkbox" name="event-offer-luggage" ${isChecked ? `checked` : ``} ${isRequesting ? `disabled` : ``}>
             <label class="event__offer-label" for="event-offer-luggage-${index + 1}">
               <span class="event__offer-title">${option}</span>
               &plus;
@@ -159,14 +170,17 @@ const createAddEditTripFormTemplate = (itemsData, allDestinations, allOffers, el
 
   const isCreateForm = (itemsData === EmptyPoint);
   const id = elements.id;
-
   const destinationsNames = getDestinationNames(allDestinations);
   const availableOffers = getAvailableOffers(elements.type.toLowerCase(), allOffers).offers;
+  const isRequesting = elements.isRequesting;
 
   const type = Events[elements.type.replace(`-`, ``).toUpperCase()];
-  const destination = elements.destination;
-  const currentDestination = findCurrentDestination(destination, allDestinations);
+  const currentDestination = findCurrentDestination(elements.destination, allDestinations);
 
+
+  const deleteButtonText = elements.externalData.deleteButtonText;
+  const cancelButtonText = elements.externalData.cancelButtonText;
+  const saveButtonText = elements.externalData.saveButtonText;
 
   const date = elements.date;
   const price = elements.price;
@@ -177,7 +191,7 @@ const createAddEditTripFormTemplate = (itemsData, allDestinations, allOffers, el
 
   let options;
   if (availableOffers.length >= 1) {
-    options = availableOffers.map((it, index) => renderOption(it.title, it.price, index, findIsCheckedOption(it.title, checkedOptions))).join(`\n`);
+    options = availableOffers.map((it, index) => renderOption(it.title, it.price, index, findIsCheckedOption(it.title, checkedOptions), isRequesting)).join(`\n`);
   }
 
   const isValidDestination = checkIsValidDestination(currentDestination.name, destinationsNames);
@@ -203,7 +217,7 @@ const createAddEditTripFormTemplate = (itemsData, allDestinations, allOffers, el
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox"  ${isRequesting ? `disabled` : ``}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -224,7 +238,7 @@ const createAddEditTripFormTemplate = (itemsData, allDestinations, allOffers, el
         <label class="event__label  event__type-output" for="event-destination-1">
           ${type} ${pretext}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCreateForm && !destination ? `` : `${destination}`}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCreateForm && !currentDestination ? `` : `${currentDestination.name}`}" list="destination-list-1" ${isRequesting ? `readonly` : ``}>
         <datalist id="destination-list-1">
         ${destinationOptions}
         </datalist>
@@ -234,12 +248,12 @@ const createAddEditTripFormTemplate = (itemsData, allDestinations, allOffers, el
         <label class="visually-hidden" for="event-start-time-1">
           From
         </label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${ isCreateForm ? `` : `${date[0]}`}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${ isCreateForm ? `` : `${date[0]}`}" ${isRequesting ? `disabled` : ``}>
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">
           To
         </label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${ isCreateForm ? `` : `${date[1]}`}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${ isCreateForm ? `` : `${date[1]}`}" ${isRequesting ? `disabled` : ``}>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -247,12 +261,12 @@ const createAddEditTripFormTemplate = (itemsData, allDestinations, allOffers, el
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="number"  min="1" step="1" name="event-price" value="${price}" autocomplete="off">
+        <input class="event__input  event__input--price" id="event-price-1" type="number"  min="1" step="1" name="event-price" value="${price}" autocomplete="off" ${isRequesting ? `readonly` : ``}>
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit" ${price <= 0 ? `disabled` : ``}>Save</button>
-      <button class="event__reset-btn" type="reset">${isCreateForm ? `Cancel` : `Delete`}</button>
-      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavourite ? `checked` : ``}></input>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${!isValidDestination || price <= 0 || isRequesting ? `disabled` : ``}>${saveButtonText}</button>
+      <button class="event__reset-btn" type="reset" ${isRequesting ? `disabled` : ``}>${isCreateForm ? `${cancelButtonText}` : `${deleteButtonText}`}</button>
+      ${ isCreateForm ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavourite ? `checked` : ``} ${isRequesting ? `disabled` : ``}></input>
       <label class="event__favorite-btn" for="event-favorite-1">
                         <span class="visually-hidden">Add to favorite</span>
                         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -282,10 +296,14 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._allDestinations = destinationModel;
     this._allOfers = offerModel;
 
+    this._isRequesting = false;
+
     this._clickHandler = null;
     this._submitHandler = null;
     this._deleteButtonClickHandler = null;
     this._favouriteHandler = null;
+
+    this._externalData = DefaultData;
 
     this._flatpickrStart = null;
     this._flatpickrEnd = null;
@@ -293,7 +311,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     if (day) {
       this._id = day.id;
       this._type = day.type;
-      this._destination = day.destination;
+      this._destination = day.destination.name;
       this._dates = [...day.date];
       this._price = day.price;
       this._isFavourite = day.isFavourite;
@@ -323,11 +341,12 @@ export default class EditTripForm extends AbstractSmartComponent {
 
     this._type = day.type;
     this._dates = [...day.date];
-    this._destination = day.destination;
+    this._destination = day.destination.name;
     this._id = day.id;
     this._price = day.price;
     this._isFavourite = day.isFavourite;
     this._offers = [...day.offers];
+    this._isRequesting = false;
     this.rerender();
   }
 
@@ -389,6 +408,8 @@ export default class EditTripForm extends AbstractSmartComponent {
       price: this._price,
       offers: this._offers,
       isFavourite: this._isFavourite,
+      externalData: this._externalData,
+      isRequesting: this._isRequesting
     });
   }
 
@@ -409,11 +430,18 @@ export default class EditTripForm extends AbstractSmartComponent {
     this.setOnOfferClick();
   }
 
+  setDataAndBlockForm(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
+    this.changeIsRequesting(true);
+  }
+
   getData() {
     const form = document.querySelector(`.event--edit`);
     const formData = new FormData(form);
 
-    return parseFormData(formData, form, this._flatpickrStart, this._flatpickrEnd, this._type, this._offers);
+    const currentDestination = findCurrentDestination(this._destination, this._allDestinations);
+
+    return parseFormData(formData, form, this._flatpickrStart, this._flatpickrEnd, this._type, this._offers, currentDestination);
   }
 
   setDeleteButtonClickHandler(handler) {
@@ -421,6 +449,15 @@ export default class EditTripForm extends AbstractSmartComponent {
       .addEventListener(`click`, handler);
 
     this._deleteButtonClickHandler = handler;
+  }
+
+  changeIsFavourite() {
+    this._isFavourite = !this._isFavourite;
+  }
+
+  changeIsRequesting(data) {
+    this._isRequesting = data;
+    this.rerender();
   }
 
   setOnStartDateChanged() {
@@ -455,6 +492,18 @@ export default class EditTripForm extends AbstractSmartComponent {
     addEventListener(`click`, handler);
 
     this._favouriteHandler = handler;
+  }
+
+  removeOnFavouriteClick(handler) {
+    const favouriteElement = this.getElement().querySelector(`.event__favorite-icon`);
+
+    if (favouriteElement) {
+      this.getElement().querySelector(`.event__favorite-icon`).
+    removeEventListener(`click`, handler);
+
+
+      this._favouriteHandler = handler;
+    }
   }
 
   setOnEventsListClick() {

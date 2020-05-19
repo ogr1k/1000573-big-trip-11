@@ -1,11 +1,13 @@
-import AbstractComponent from "./abstract-component.js";
+import AbstractSmartComponent from "./abstact-smart-components.js";
+
+const DEFAULT_TAB = `Table`;
 
 const createTabElement = (name, isActive) => {
   return (`<a class="trip-tabs__btn  ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${name}</a>`);
 };
 
-const createTabsTemplate = (data) => {
-  const tabs = data.map((it, index) => createTabElement(it, index === 0)).join(`\n`);
+const createTabsTemplate = (data, activeTab) => {
+  const tabs = data.map((it) => createTabElement(it, it === activeTab)).join(`\n`);
   return (
     `<nav class="trip-controls__trip-tabs  trip-tabs">
      ${tabs}
@@ -14,20 +16,26 @@ const createTabsTemplate = (data) => {
 };
 
 
-export default class TabsTemplate extends AbstractComponent {
+export default class TabsTemplate extends AbstractSmartComponent {
   constructor(day) {
     super();
 
     this._day = day;
-    this._currentActive = `Table`;
+    this._currentActive = DEFAULT_TAB;
+
+    this._handler = null;
   }
 
   getTemplate() {
-    return createTabsTemplate(this._day);
+    return createTabsTemplate(this._day, this._currentActive);
   }
 
   setActive(element) {
     this._currentActive = element;
+  }
+
+  recoveryListeners() {
+    this.setOnChange(this._handler);
   }
 
   setOnChange(handler) {
@@ -40,9 +48,12 @@ export default class TabsTemplate extends AbstractComponent {
         return;
       }
 
+      this._handler = handler;
+
       const menuItem = evt.target.textContent;
 
       handler(menuItem);
+      this.rerender();
     });
   }
 }

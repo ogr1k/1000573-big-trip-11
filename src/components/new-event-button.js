@@ -2,7 +2,7 @@ import AbstractComponent from "./abstract-component.js";
 
 const createNewEventButtonTemplate = () => {
   return (
-    `<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>`
+    `<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button" disabled>New event</button>`
   );
 };
 
@@ -14,13 +14,5 @@ export default class NewEventButton extends AbstractComponent {
 
   setOnClick(handler) {
     this.getElement().addEventListener(`click`, handler);
-  }
-
-  disableButton() {
-    this.getElement().disabled = true;
-  }
-
-  enableButton() {
-    this.getElement().disabled = false;
   }
 }

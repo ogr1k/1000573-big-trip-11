@@ -5,6 +5,9 @@ import EditTripForm from "../components/add-edit-trip-form.js";
 import PointModel from "../models/point.js";
 import moment from "moment";
 
+const SHAKE_ANIMATION_TIMEOUT = 600;
+const MAX_POINTS_COUNT = 3;
+
 export const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
@@ -46,6 +49,8 @@ export default class PointController {
     const oldPointEditComponent = this._pointEditComponent;
     this._mode = mode;
 
+    const isCreateForm = (day === EmptyPoint);
+
     const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
     this._pointComponent = new DayItem(day);
@@ -54,6 +59,13 @@ export default class PointController {
     const onEditFormSubmit = (evt) => {
       evt.preventDefault();
       const data = this._pointEditComponent.getData();
+
+      this._pointEditComponent.setDataAndBlockForm({
+        saveButtonText: `Saving...`,
+      });
+
+      this._pointEditComponent.removeOnFavouriteClick(onFavouriteClick);
+
       this._onDataChange(this, day, data);
     };
 
@@ -65,7 +77,6 @@ export default class PointController {
           replace(this._pointEditComponent, oldPointEditComponent);
 
           this._replaceEditToPoint();
-
         } else {
           render(this._container, this._pointComponent, RenderPosition.BEFOREEND);
         }
@@ -88,6 +99,12 @@ export default class PointController {
 
 
     this._pointEditComponent.setDeleteButtonClickHandler(() => {
+      if (!isCreateForm) {
+        this._pointEditComponent.setData({
+          deleteButtonText: `Deleting...`,
+        });
+      }
+
       this._onDataChange(this, day, null);
       newEventButtonElement.disabled = false;
     });
@@ -95,8 +112,13 @@ export default class PointController {
     const onFavouriteClick = () => {
       const newPoint = PointModel.clone(day);
       newPoint.isFavourite = !newPoint.isFavourite;
+      const isStarClicked = true;
 
-      this._onDataChange(this, day, newPoint);
+      this._pointEditComponent.changeIsFavourite();
+      this._pointEditComponent.setDataAndBlockForm();
+      this._pointEditComponent.removeOnFavouriteClick(onFavouriteClick);
+
+      this._onDataChange(this, day, newPoint, isStarClicked);
     };
 
 
@@ -112,7 +134,7 @@ export default class PointController {
     this._pointComponent.setOnRollupClick(onRollUpClick);
 
     const optionsContainer = this._pointComponent.getElement().querySelector(`.event__selected-offers`);
-    day.offers.map((option) => renderOptions(optionsContainer, option)).join(`\n`);
+    day.offers.slice(0, MAX_POINTS_COUNT).map((option) => renderOptions(optionsContainer, option)).join(`\n`);
   }
 
   destroy() {
@@ -121,6 +143,9 @@ export default class PointController {
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
+  rerenderEditForm() {
+    this._pointEditComponent.changeIsRequesting(false);
+  }
 
   setDefaultView() {
     const createFormElement = document.querySelector(`.event--create`);
@@ -131,6 +156,16 @@ export default class PointController {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceEditToPoint();
     }
+  }
+
+  shake() {
+    this._pointEditComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this._pointComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._pointEditComponent.getElement().style.animation = ``;
+      this._pointComponent.getElement().style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 
   _replaceEditToPoint() {

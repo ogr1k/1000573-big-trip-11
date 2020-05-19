@@ -2,21 +2,21 @@ import moment from "moment";
 
 export default class Point {
   constructor(data) {
-    this.destination = data[`destination`].name;
+    this.destination = data[`destination`];
     this.id = data[`id`];
     this.date = [moment(data[`date_from`]), moment(data[`date_to`])];
     this.isFavourite = Boolean(data[`is_favorite`]);
     this.price = data[`base_price`];
     this.offers = data[`offers`];
     this.type = data[`type`];
-
+    this.dateDifference = this.date[1] - this.date[0];
   }
 
   toRAW() {
     return {
       "base_price": this.price,
-      "date_from": this.date[0],
-      "date_to": this.date[1],
+      "date_from": this.date[0].toISOString(),
+      "date_to": this.date[1].toISOString(),
       "destination": this.destination,
       "id": this.id,
       "is_favorite": this.isFavourite,

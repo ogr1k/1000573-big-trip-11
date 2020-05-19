@@ -235,8 +235,8 @@ const findTime = (points, type) => {
   });
 
 
-  const timeDiff = filteredElements.reduce((accum, current) =>{
-    return accum + current.dateDiff;
+  const timeDiff = filteredElements.reduce((accumulator, current) =>{
+    return accumulator + current.dateDifference;
   }, 0);
 
   return Math.floor(timeDiff / 1000 / 60 / 60);

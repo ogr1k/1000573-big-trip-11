@@ -12,13 +12,13 @@ const createEventOptionElement = (data) => {
 };
 
 export default class EventOption extends AbstractComponent {
-  constructor(day) {
+  constructor(option) {
     super();
 
-    this._day = day;
+    this._option = option;
   }
 
   getTemplate() {
-    return createEventOptionElement(this._day);
+    return createEventOptionElement(this._option);
   }
 }
