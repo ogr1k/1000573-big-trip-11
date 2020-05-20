@@ -30,13 +30,18 @@ const getFinalDifferenceResult = (startTime, endTime) => {
 
 const createDayElement = (data, elementIndex) => {
   let {type, destination, price, dateDifference} = data;
-  console.log(dateDifference);
-
 
   type = Events[type.replace(`-`, ``).toUpperCase()];
   const startTime = data.date[0];
   const endTime = data.date[1];
 
+  // console.log(moment.utc(dateDifference).format(`DD[day], HH[hour and] m [min]`));
+
+  let x = 433276000;
+  let tempTime = moment.duration(x);
+  let y = ` ${tempTime.hours()} ${tempTime.minutes()} `;
+
+  console.log(y);
 
   const formattedStartTime = formatTime(startTime);
   const formattedEndTime = formatTime(endTime);
