@@ -10,7 +10,7 @@ const createTripSectionTemplate = () => {
 };
 
 
-export default class TripSectionTemplate extends AbstractComponent {
+export default class TripSection extends AbstractComponent {
   getTemplate() {
     return createTripSectionTemplate();
   }

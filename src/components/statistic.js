@@ -2,8 +2,11 @@
 import AbstractSmartComponent from "./abstact-smart-components.js";
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import moment from 'moment';
 
 const BAR_HEIGHT = 55;
+const ELEMENT_DATES_DIFFERENCE_KEY = `dateDifference`;
+const ELEMENT_PRICE_KEY = `price`;
 
 const MoneyAndTimeEvents = {
   FLY: `FLIGHT`,
@@ -21,25 +24,24 @@ const TransportEvents = {
   RIDE: [`TRANSPORT`, `SHIP`, `TRAIN`, `BUS`, `TAXI`]
 };
 
-const findMoneyAmount = (points, name) => {
+const getTotalData = (points, type, elementKey) => {
 
   const filteredElements = points.filter((element) => {
-    const formattedType = element.type.replace(`-`, ``).toUpperCase();
 
-    if (Array.isArray(MoneyAndTimeEvents[name])) {
-      for (const item of MoneyAndTimeEvents[name]) {
-        if (item === formattedType) {
+    if (Array.isArray(MoneyAndTimeEvents[type])) {
+      for (const item of MoneyAndTimeEvents[type]) {
+        if (item === element.type) {
           return true;
         }
       }
     }
 
-    return formattedType === MoneyAndTimeEvents[name];
+    return element.type === MoneyAndTimeEvents[type];
   });
 
 
-  return filteredElements.reduce((accum, current) =>{
-    return accum + current.price;
+  return filteredElements.reduce((accumulator, currentElement) =>{
+    return accumulator + currentElement[elementKey];
   }, 0);
 };
 
@@ -51,7 +53,7 @@ const renderMoneyChart = (moneyCtx, points) => {
   const types = Object.keys(MoneyAndTimeEvents);
 
   types.forEach((element) => {
-    moneyData.push(findMoneyAmount(points, element));
+    moneyData.push(getTotalData(points, element, ELEMENT_PRICE_KEY));
   });
 
   return new Chart(moneyCtx, {
@@ -124,7 +126,7 @@ const findDriveCount = (points, type) => {
   let count = 0;
 
   points.map((point) => {
-    const formattedType = point.type.toUpperCase();
+    const formattedType = point.type;
     if (Array.isArray(TransportEvents[type])) {
 
       for (const transportType of TransportEvents[type]) {
@@ -219,27 +221,10 @@ const renderTransportChart = (transportCtx, points) => {
 };
 
 const findTime = (points, type) => {
-
-  const filteredElements = points.filter((element) => {
-    const formattedType = element.type.replace(`-`, ``).toUpperCase();
-
-    if (Array.isArray(MoneyAndTimeEvents[type])) {
-      for (const item of MoneyAndTimeEvents[type]) {
-        if (item === formattedType) {
-          return true;
-        }
-      }
-    }
-
-    return formattedType === MoneyAndTimeEvents[type];
-  });
+  const spentTime = moment.duration(getTotalData(points, type, ELEMENT_DATES_DIFFERENCE_KEY));
 
 
-  const timeDiff = filteredElements.reduce((accumulator, current) =>{
-    return accumulator + current.dateDifference;
-  }, 0);
-
-  return Math.floor(timeDiff / 1000 / 60 / 60);
+  return Math.floor(spentTime.asHours());
 };
 
 const renderTimeChart = (transportCtx, points) => {

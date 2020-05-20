@@ -27,7 +27,7 @@ const createFiltersTemplate = (data) => {
 };
 
 
-export default class FilterTemplate extends AbstractComponent {
+export default class Filter extends AbstractComponent {
   constructor(day) {
     super();
 

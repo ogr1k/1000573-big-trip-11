@@ -16,7 +16,7 @@ const createTabsTemplate = (data, activeTab) => {
 };
 
 
-export default class TabsTemplate extends AbstractSmartComponent {
+export default class Tabs extends AbstractSmartComponent {
   constructor(tabs) {
     super();
 

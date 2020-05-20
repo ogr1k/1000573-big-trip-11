@@ -3,6 +3,9 @@ import AbstractComponent from "./abstract-component.js";
 import moment from "moment";
 import {Events} from "../constants.js";
 
+const HOURS_PER_DAY = 24;
+const MINUTES_PER_HOUR = 60;
+const MINUTES_PER_DAY = 1440;
 
 const formatDifference = (element, text) => {
   if (element === 0) {
@@ -14,15 +17,18 @@ const formatDifference = (element, text) => {
 const createDayElement = (data, elementIndex) => {
   let {type, destination, price, dateDifference} = data;
 
-  type = Events[type.replace(`-`, ``).toUpperCase()];
+  type = Events[type];
   const startTime = data.date[0];
   const endTime = data.date[1];
 
+
   const duration = moment.duration(dateDifference);
 
+  const daysDifference = Math.floor(duration.asDays());
+  const hoursDifference = Math.floor(duration.asHours() - daysDifference * HOURS_PER_DAY);
+  const minsDifference = Math.floor(duration.asMinutes() - (hoursDifference * MINUTES_PER_HOUR) - (daysDifference * MINUTES_PER_DAY));
 
-  const differenceResult = `${formatDifference(Math.floor(duration.asDays()), `D`)} ${formatDifference(duration.hours(), `H`)} ${formatDifference(duration.minutes(), `M`)}`;
-
+  const differenceResult = `${formatDifference(daysDifference, `D`)} ${formatDifference(hoursDifference, `H`)} ${formatDifference(minsDifference, `M`)}`;
   const formattedStartTime = formatTime(startTime);
   const formattedEndTime = formatTime(endTime);
 
@@ -62,16 +68,16 @@ const createDayElement = (data, elementIndex) => {
 };
 
 
-export default class DayItem extends AbstractComponent {
-  constructor(day, index) {
+export default class Point extends AbstractComponent {
+  constructor(point, index) {
     super();
 
-    this._day = day;
+    this._point = point;
     this._index = index;
   }
 
   getTemplate() {
-    return createDayElement(this._day, this._index);
+    return createDayElement(this._point, this._index);
   }
 
   setOnRollupClick(handler) {

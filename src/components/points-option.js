@@ -11,7 +11,7 @@ const createEventOptionElement = (option) => {
   </li>`);
 };
 
-export default class EventOption extends AbstractComponent {
+export default class EventOptions extends AbstractComponent {
   constructor(option) {
     super();
 

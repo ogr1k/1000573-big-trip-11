@@ -5,6 +5,8 @@ import {FilterType} from "../constants.js";
 export default class Points {
   constructor() {
     this._points = [];
+    this._offers = [];
+    this._destinations = [];
     this._activeFilterType = FilterType.EVERYTHING;
 
     this._dataChangeHandlers = [];
@@ -23,6 +25,23 @@ export default class Points {
     this._points = Array.from(points);
     this._callHandlers(this._dataChangeHandlers);
   }
+
+  setDestinations(destinations) {
+    this._destinations = destinations;
+  }
+
+  getDestinations() {
+    return this._destinations;
+  }
+
+  setOffers(offers) {
+    this._offers = offers;
+  }
+
+  getOffers() {
+    return this._offers;
+  }
+
 
   setFilter(filterType) {
     this._activeFilterType = filterType;

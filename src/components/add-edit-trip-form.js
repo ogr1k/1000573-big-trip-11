@@ -1,6 +1,5 @@
 import {TransferEvents, ActivityEvents, Events} from "../constants.js";
 import {setPretext} from "../utils/common.js";
-import {allAvailableDestinations, allAvailableOffers} from "../main.js";
 import AbstractSmartComponent from "./abstact-smart-components.js";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
@@ -37,7 +36,6 @@ const getFormData = (form, startDate, endDate, parsedType, checkedOffers, curren
 
   const favouriteElement = form.querySelector(`#event-favorite-1`);
 
-
   const parseIsFavourite = () => {
     if (favouriteElement) {
       return favouriteElement.checked;
@@ -55,7 +53,7 @@ const getFormData = (form, startDate, endDate, parsedType, checkedOffers, curren
     "base_price": Number(formData.get(`event-price`)),
     "date_from": formattedStartDate,
     "date_to": formattedEndDate,
-    "type": Events[parsedType.replace(`-`, ``).toUpperCase()],
+    "type": Events[parsedType],
     "offers": checkedOffers,
     "is_favorite": parseIsFavourite(),
     "dateDiff": formattedEndDate - formattedStartDate
@@ -169,14 +167,14 @@ const findCurrentDestination = (currentDestination, allDestinations) => {
   return false;
 };
 
-const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
+const createAddEditTripFormTemplate = (itemsData, allAvailableDestinations, allAvailableOffers, elements = {}) => {
   const isCreateForm = (itemsData === EmptyPoint);
   const id = elements.id;
   const destinationsNames = getDestinationNames(allAvailableDestinations);
-  const availableOffers = getAvailableOffers(elements.type.toLowerCase(), allAvailableOffers).offers;
   const isRequesting = elements.isRequesting;
 
-  const type = Events[elements.type.replace(`-`, ``).toUpperCase()];
+  const type = Events[elements.type];
+  const availableOffers = getAvailableOffers(type.toLowerCase(), allAvailableOffers).offers;
   const currentDestination = findCurrentDestination(elements.destination, allAvailableDestinations);
 
 
@@ -289,11 +287,12 @@ const createAddEditTripFormTemplate = (itemsData, elements = {}) => {
 
 
 export default class EditTripForm extends AbstractSmartComponent {
-  constructor(day) {
-
+  constructor(point, destinations, offers) {
     super();
 
-    this._day = day;
+    this._point = point;
+    this._allDestinations = destinations;
+    this._allOffers = offers;
 
     this._isRequesting = false;
 
@@ -307,17 +306,17 @@ export default class EditTripForm extends AbstractSmartComponent {
     this._flatpickrStart = null;
     this._flatpickrEnd = null;
     this._id = ``;
-    if (day) {
-      this._id = day.id;
-      this._type = day.type;
-      this._destination = day.destination.name;
-      this._dates = [...day.date];
-      this._price = day.price;
-      this._isFavourite = day.isFavourite;
-      this._offers = [...day.offers];
+    if (point) {
+      this._id = point.id;
+      this._type = point.type;
+      this._destination = point.destination.name;
+      this._dates = [...point.date];
+      this._price = point.price;
+      this._isFavourite = point.isFavourite;
+      this._offers = [...point.offers];
     }
 
-    if (!day) {
+    if (!point) {
       this._dates = [];
     }
 
@@ -331,7 +330,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   reset() {
-    const day = this._day;
+    const day = this._point;
 
     this._type = day.type;
     this._dates = [...day.date];
@@ -394,7 +393,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createAddEditTripFormTemplate(this._day, {
+    return createAddEditTripFormTemplate(this._point, this._allDestinations, this._allOffers, {
       type: this._type,
       destination: this._destination,
       date: this._dates,
@@ -403,7 +402,7 @@ export default class EditTripForm extends AbstractSmartComponent {
       offers: this._offers,
       isFavourite: this._isFavourite,
       externalData: this._externalData,
-      isRequesting: this._isRequesting
+      isRequesting: this._isRequesting,
     });
   }
 
@@ -428,7 +427,7 @@ export default class EditTripForm extends AbstractSmartComponent {
   getData() {
     const form = document.querySelector(`.event--edit`);
 
-    const currentDestination = findCurrentDestination(this._destination, allAvailableDestinations);
+    const currentDestination = findCurrentDestination(this._destination, this._allDestinations);
 
     return getFormData(form, this._flatpickrStart, this._flatpickrEnd, this._type, this._offers, currentDestination);
   }
@@ -494,7 +493,10 @@ export default class EditTripForm extends AbstractSmartComponent {
         const pickedStartDate = this._flatpickrStart.selectedDates[0];
         this._dates[0] = pickedStartDate;
         this._flatpickrEnd.set(`minDate`, new Date(pickedStartDate));
-        this._flatpickrEnd.setDate(new Date(pickedStartDate));
+
+        if (moment(this._flatpickrEnd.selectedDates[0]).isBefore(moment(pickedStartDate))) {
+          this._flatpickrEnd.setDate(new Date(pickedStartDate));
+        }
       });
   }
 
@@ -511,7 +513,7 @@ export default class EditTripForm extends AbstractSmartComponent {
         return;
       }
 
-      if (evt.target.control.value !== this._type.replace(`-`, ``).toUpperCase()) {
+      if (evt.target.control.value !== this._type) {
         this._type = evt.target.control.value;
         this._offers = [];
       }

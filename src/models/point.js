@@ -8,7 +8,7 @@ export default class Point {
     this.isFavourite = Boolean(data[`is_favorite`]);
     this.price = data[`base_price`];
     this.offers = data[`offers`];
-    this.type = data[`type`];
+    this.type = data[`type`].replace(`-`, ``).toUpperCase();
     this.dateDifference = this.date[1] - this.date[0];
   }
 

@@ -1,10 +1,8 @@
-import InfoSectionTemplate from "./components/information-section.js";
-import InfoTemplate from "./components/information";
+import InformationSection from "./components/information.js";
 import Loading from "./components/loading.js";
-import PriceTemplate from "./components/price.js";
-import TabsTemplate from "./components/tabs.js";
+import Tabs from "./components/tabs.js";
 import Statistics from "./components/statistic.js";
-import TripSectionTemplate from "./components/trip-section.js";
+import TripSection from "./components/trip-section.js";
 import TripController from "./controllers/trip.js";
 import PointsModel from "./models/points.js";
 import FilterController from "./controllers/filter.js";
@@ -14,24 +12,18 @@ import API from "./api.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
 import {NAVIGATION_ELEMENTS} from "./constants.js";
 
-const AUTHORIZATION = `Basic er894jdzbdw`;
+const AUTHORIZATION = `Basic er895jdzbdw`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
 
 const api = new API(AUTHORIZATION, END_POINT);
 
 const pointsModel = new PointsModel();
 
-
 const mainTripElement = document.querySelector(`.trip-main`);
-render(mainTripElement, new InfoSectionTemplate(), RenderPosition.AFTERBEGIN);
-
-const infoSectionElement = document.querySelector(`.trip-info`);
-
-render(infoSectionElement, new InfoTemplate(), RenderPosition.BEFOREEND);
-render(infoSectionElement, new PriceTemplate(), RenderPosition.BEFOREEND);
+render(mainTripElement, new InformationSection(), RenderPosition.AFTERBEGIN);
 
 const filtersContanerElement = document.querySelector(`.trip-controls`);
-const tabsComponent = new TabsTemplate(NAVIGATION_ELEMENTS);
+const tabsComponent = new Tabs(NAVIGATION_ELEMENTS);
 render(filtersContanerElement, tabsComponent, RenderPosition.AFTERBEGIN);
 
 const newEventButtonComponent = new NewEventButton();
@@ -45,7 +37,7 @@ const mainContainerElement = document.querySelector(`#js-trip-event`);
 const loadingComponent = new Loading();
 render(mainContainerElement, loadingComponent, RenderPosition.BEFOREEND);
 
-const tripSectionComponent = new TripSectionTemplate();
+const tripSectionComponent = new TripSection();
 render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 
@@ -72,16 +64,14 @@ tabsComponent.setOnChange((menuItem) => {
   }
 });
 
-let allAvailableDestinations;
-let allAvailableOffers;
 
 Promise.all([api.getDestinations(), api.getOffers(), api.getPoints()]).then(
     ([destinations, offers, points]) => {
-      allAvailableDestinations = destinations;
-      allAvailableOffers = offers;
+      pointsModel.setDestinations(destinations);
+      pointsModel.setOffers(offers);
       pointsModel.setPoints(points);
       remove(loadingComponent);
       tripController.render();
     });
 
-export {newEventButtonComponent, allAvailableDestinations, allAvailableOffers};
+export {newEventButtonComponent};

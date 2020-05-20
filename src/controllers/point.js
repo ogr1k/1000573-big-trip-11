@@ -1,12 +1,13 @@
 import {RenderPosition, replace, render, remove} from "../utils/render.js";
-import DayItem from "../components/points-element.js";
-import EventOption from "../components/points-option.js";
+import Point from "../components/points-element.js";
+import EventOptions from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
 import PointModel from "../models/point.js";
 import moment from "moment";
 
 const SHAKE_ANIMATION_TIMEOUT = 600;
 const MAX_POINTS_COUNT = 3;
+const EMPTY_POINT_DEFAULT_TYPE = `BUS`;
 
 export const Mode = {
   ADDING: `adding`,
@@ -18,19 +19,21 @@ export const EmptyPoint = {
   id: String(new Date() + Math.random()),
   decription: ``,
   destination: ``,
-  type: `bus`,
+  type: EMPTY_POINT_DEFAULT_TYPE,
   date: [moment(new Date()), moment(new Date())],
   price: ``,
   offers: []
 };
 
 const renderOptions = (element, currentItem) => {
-  render(element, new EventOption(currentItem), RenderPosition.BEFOREEND);
+  render(element, new EventOptions(currentItem), RenderPosition.BEFOREEND);
 };
 
 export default class PointController {
-  constructor(container, onDataChange, onViewChange) {
+  constructor(container, onDataChange, onViewChange, destinations, offers) {
     this._container = container;
+    this._destinations = destinations;
+    this._offers = offers;
 
     this._pointComponent = null;
     this._pointEditComponent = null;
@@ -51,8 +54,8 @@ export default class PointController {
 
     const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
-    this._pointComponent = new DayItem(day);
-    this._pointEditComponent = new EditTripForm(day);
+    this._pointComponent = new Point(day);
+    this._pointEditComponent = new EditTripForm(day, this._destinations, this._offers);
 
     const onEditFormSubmit = (evt) => {
       evt.preventDefault();
