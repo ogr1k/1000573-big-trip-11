@@ -1,4 +1,4 @@
-import {EVENTS_PRETEXTS} from "../constants.js";
+import {EventsPretexts} from "../constants.js";
 
 const formatTime = (date) => {
   return date.format(`HH:mm`);
@@ -6,7 +6,7 @@ const formatTime = (date) => {
 
 
 const setPretext = (element) => {
-  return EVENTS_PRETEXTS[element] || `to`;
+  return EventsPretexts[element] || `to`;
 };
 
 export {setPretext};

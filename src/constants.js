@@ -16,13 +16,7 @@ export const ActivityEvents = {
 
 export const Events = Object.assign({}, ActivityEvents, TransferEvents);
 
-export const FilterType = {
-  EVERYTHING: `everything`,
-  FUTURE: `future`,
-  PAST: `past`
-};
-
-export const EVENTS_PRETEXTS = {
+export const EventsPretexts = {
   [ActivityEvents.CHECKIN]: `in`,
   [ActivityEvents.RESTAURANT]: `in`,
   [ActivityEvents.SIGHTSEEING]: `in`,
@@ -35,10 +29,13 @@ export const EVENTS_PRETEXTS = {
   [TransferEvents.FLIGHT]: `to`
 };
 
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
+
 export const NavigationTypes = {
   DEFAULT: `Table`,
   STATS: `Stats`
 };
-
-export const TYPES_POINT = [...Object.values(TransferEvents), ...Object.values(ActivityEvents)];
-export const DESTINATIONS_POINT = [`Amsterdam`, `Geneva`, `Milan`, `Chamonix`];
