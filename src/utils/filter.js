@@ -1,6 +1,6 @@
 import {FilterType} from "../constants.js";
 
-const getFutureTasks = (points, nowDate) => {
+const getFuturePoints = (points, nowDate) => {
   return points.filter((point) => {
     const eventStartDate = point.date[0];
     const pointDate = eventStartDate;
@@ -18,14 +18,14 @@ const getPastDate = (points, nowDate) => {
   });
 };
 
-export const getTasksByFilter = (tasks, filterType) => {
+export const getPointsByFilter = (points, filterType) => {
   const nowDate = new Date();
 
   switch (filterType) {
     case FilterType.FUTURE:
-      return getFutureTasks(tasks, nowDate);
+      return getFuturePoints(points, nowDate);
     case FilterType.PAST:
-      return getPastDate(tasks, nowDate);
+      return getPastDate(points, nowDate);
   }
-  return tasks;
+  return points;
 };

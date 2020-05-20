@@ -35,6 +35,10 @@ export const EVENTS_PRETEXTS = {
   [TransferEvents.FLIGHT]: `to`
 };
 
+export const NavigationTypes = {
+  DEFAULT: `Table`,
+  STATS: `Stats`
+};
+
 export const TYPES_POINT = [...Object.values(TransferEvents), ...Object.values(ActivityEvents)];
-export const NAVIGATION_ELEMENTS = [`Table`, `Stats`];
 export const DESTINATIONS_POINT = [`Amsterdam`, `Geneva`, `Milan`, `Chamonix`];

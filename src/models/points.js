@@ -1,5 +1,7 @@
-import {getTasksByFilter} from "../utils/filter.js";
+import {getPointsByFilter} from "../utils/filter.js";
+import {getSortedPoints} from "../utils/sort.js";
 import {FilterType} from "../constants.js";
+import {SortType} from "../components/sorting.js";
 
 
 export default class Points {
@@ -8,13 +10,15 @@ export default class Points {
     this._offers = [];
     this._destinations = [];
     this._activeFilterType = FilterType.EVERYTHING;
+    this._activeSortType = SortType.DEFAULT;
 
     this._dataChangeHandlers = [];
     this._filterChangeHandlers = [];
   }
 
   getPoints() {
-    return getTasksByFilter(this._points, this._activeFilterType);
+    const sortedPoints = getSortedPoints(this._points, this._activeSortType);
+    return getPointsByFilter(sortedPoints, this._activeFilterType);
   }
 
   getPointsAll() {
@@ -47,6 +51,19 @@ export default class Points {
     this._activeFilterType = filterType;
     this._callHandlers(this._filterChangeHandlers);
   }
+
+  setSort(sortType) {
+    this._activeSortType = sortType;
+  }
+
+  getSortType() {
+    return this._activeSortType;
+  }
+
+  getFilterType() {
+    return this._activeFilterType;
+  }
+
 
   updatePoint(id, point) {
     const index = this._points.findIndex((it) => it.id === id);

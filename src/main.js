@@ -10,7 +10,7 @@ import NewEventButton from "./components/new-event-button.js";
 import API from "./api.js";
 
 import {RenderPosition, render, remove} from "./utils/render.js";
-import {NAVIGATION_ELEMENTS} from "./constants.js";
+import {NavigationTypes} from "./constants.js";
 
 const AUTHORIZATION = `Basic er895jdzbdw`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
@@ -22,14 +22,14 @@ const pointsModel = new PointsModel();
 const mainTripElement = document.querySelector(`.trip-main`);
 render(mainTripElement, new InformationSection(), RenderPosition.AFTERBEGIN);
 
-const filtersContanerElement = document.querySelector(`.trip-controls`);
-const tabsComponent = new Tabs(NAVIGATION_ELEMENTS);
-render(filtersContanerElement, tabsComponent, RenderPosition.AFTERBEGIN);
+const filtersContainerElement = document.querySelector(`.trip-controls`);
+const tabsComponent = new Tabs(Object.values(NavigationTypes));
+render(filtersContainerElement, tabsComponent, RenderPosition.AFTERBEGIN);
 
 const newEventButtonComponent = new NewEventButton();
 render(mainTripElement, newEventButtonComponent, RenderPosition.BEFOREEND);
 
-const filterController = new FilterController(filtersContanerElement, pointsModel);
+const filterController = new FilterController(filtersContainerElement, pointsModel);
 filterController.render();
 
 const mainContainerElement = document.querySelector(`#js-trip-event`);
@@ -51,13 +51,13 @@ tabsComponent.setOnChange((menuItem) => {
 
   tabsComponent.setActive(menuItem);
 
-  if (menuItem === `Table`) {
+  if (menuItem === NavigationTypes.DEFAULT) {
     statisticsComponent.hide();
     tripController.show();
     return;
   }
 
-  if (menuItem === `Stats`) {
+  if (menuItem === NavigationTypes.STATS) {
     tripController.hide();
     statisticsComponent.show();
     return;
