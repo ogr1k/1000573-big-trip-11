@@ -17,17 +17,17 @@ const createTabsTemplate = (data, activeTab) => {
 
 
 export default class TabsTemplate extends AbstractSmartComponent {
-  constructor(day) {
+  constructor(tabs) {
     super();
 
-    this._day = day;
+    this._tabs = tabs;
     this._currentActive = DEFAULT_TAB;
 
     this._handler = null;
   }
 
   getTemplate() {
-    return createTabsTemplate(this._day, this._currentActive);
+    return createTabsTemplate(this._tabs, this._currentActive);
   }
 
   setActive(element) {

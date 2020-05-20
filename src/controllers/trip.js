@@ -9,6 +9,7 @@ import {newEventButtonComponent} from "../main.js";
 import {FilterType} from "../constants.js";
 
 const mainTripElement = document.querySelector(`.trip-main`);
+const noPointsComponent = new NoPointsTemplate();
 
 
 const getSortedPoints = (points, sortType) => {
@@ -51,10 +52,10 @@ const getPointsStructure = (points) => {
   return dayStructure;
 };
 
-const renderPoints = (points, onDataChange, onViewChange, noPointContainer, noPointComponent, isSorted, destinationalModel, offerModel) => {
+const renderPoints = (points, onDataChange, onViewChange, noPointContainer, isSorted) => {
 
   if (points.length === 0) {
-    render(noPointContainer.getElement(), noPointComponent, RenderPosition.BEFOREEND);
+    render(noPointContainer.getElement(), noPointsComponent, RenderPosition.BEFOREEND);
     return null;
   }
 
@@ -73,7 +74,7 @@ const renderPoints = (points, onDataChange, onViewChange, noPointContainer, noPo
     renderDay();
     const container = document.querySelector(`.trip-events__list`);
     points.map((item) => {
-      const pointController = new PointController(container, onDataChange, onViewChange, destinationalModel, offerModel);
+      const pointController = new PointController(container, onDataChange, onViewChange);
       pointController.render(item, PointControllerMode.DEFAULT);
 
       pointControllers.push(pointController);
@@ -96,7 +97,7 @@ const renderPoints = (points, onDataChange, onViewChange, noPointContainer, noPo
       const structuredPoints = dayStructure.get(it);
       const container = document.querySelectorAll(`.trip-events__list`)[index];
       structuredPoints.map((item) => {
-        const pointController = new PointController(container, onDataChange, onViewChange, destinationalModel, offerModel);
+        const pointController = new PointController(container, onDataChange, onViewChange);
         pointController.render(item, PointControllerMode.DEFAULT);
 
         pointControllers.push(pointController);
@@ -108,11 +109,9 @@ const renderPoints = (points, onDataChange, onViewChange, noPointContainer, noPo
 
 
 export default class TripController {
-  constructor(container, pointsModels, api, destinationalModel, offerModel) {
+  constructor(container, pointsModels, api) {
     this._container = container;
     this._pointsModels = pointsModels;
-    this._destinationalModel = destinationalModel;
-    this._offerModel = offerModel;
 
     this._api = api;
 
@@ -127,7 +126,6 @@ export default class TripController {
 
     this._sortComponent = new SortTemplate(Object.values(SortType));
     this._daysComponent = new TripDaysListTemplate();
-    this._noPointsComponent = new NoPointsTemplate();
 
     this._pointsModels.setFilterChangeHandler(this._onFilterChange);
     this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
@@ -165,7 +163,7 @@ export default class TripController {
 
   createPoint() {
     const pointsDay = document.querySelector(`.trip-days__item`);
-    const pointController = new PointController(pointsDay, this._onDataChange, this._onViewChange, this._destinationalModel.getDestinations(), this._offerModel.getOffers());
+    const pointController = new PointController(pointsDay, this._onDataChange, this._onViewChange);
     pointController.render(EmptyPoint, PointControllerMode.ADDING);
   }
 
@@ -195,7 +193,7 @@ export default class TripController {
   }
 
   _renderPoint(elements) {
-    const newPoints = renderPoints(elements, this._onDataChange, this._onViewChange, this._container, this._noPointsComponent, this._isSorted, this._destinationalModel.getDestinations(), this._offerModel.getOffers());
+    const newPoints = renderPoints(elements, this._onDataChange, this._onViewChange, this._container, this._isSorted);
     if (elements.length) {
       this._showedPointControllers = this._showedPointControllers.concat(newPoints);
     }
@@ -246,8 +244,7 @@ export default class TripController {
           this._updatePoints();
         })
         .catch(() => {
-          pointController.shake();
-          pointController.rerenderEditForm();
+          this._catchRequestError(pointController);
         });
       }
     } else if (newData === null) {
@@ -257,8 +254,7 @@ export default class TripController {
         this._updatePoints();
       })
       .catch(() => {
-        pointController.shake();
-        pointController.rerenderEditForm();
+        this._catchRequestError(pointController);
       });
     } else {
       this._api.updatePoint(oldData.id, newData)
@@ -271,8 +267,7 @@ export default class TripController {
         }
       })
       .catch(() => {
-        pointController.shake();
-        pointController.rerenderEditForm();
+        this._catchRequestError(pointController);
       });
     }
   }

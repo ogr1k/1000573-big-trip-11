@@ -1,9 +1,9 @@
 import AbstractComponent from "./abstract-component.js";
 
 
-const createEventOptionElement = (data) => {
-  const options = data.title;
-  const price = data.price;
+const createEventOptionElement = (option) => {
+  const options = option.title;
+  const price = option.price;
   return (`<li class="event__offer">
    <span class="event__offer-title">${options}</span>
    &plus;

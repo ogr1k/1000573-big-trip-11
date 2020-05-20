@@ -29,13 +29,11 @@ const renderOptions = (element, currentItem) => {
 };
 
 export default class PointController {
-  constructor(container, onDataChange, onViewChange, destinationOffer, offerModel) {
+  constructor(container, onDataChange, onViewChange) {
     this._container = container;
 
     this._pointComponent = null;
     this._pointEditComponent = null;
-    this._offerModel = offerModel;
-    this._destinationOffer = destinationOffer;
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
@@ -54,7 +52,7 @@ export default class PointController {
     const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
 
     this._pointComponent = new DayItem(day);
-    this._pointEditComponent = new EditTripForm(day, this._destinationOffer, this._offerModel);
+    this._pointEditComponent = new EditTripForm(day);
 
     const onEditFormSubmit = (evt) => {
       evt.preventDefault();
@@ -98,11 +96,13 @@ export default class PointController {
     };
 
 
-    this._pointEditComponent.setDeleteButtonClickHandler(() => {
+    this._pointEditComponent.setDeleteButtonClickHandler((evt) => {
+      evt.preventDefault();
       if (!isCreateForm) {
-        this._pointEditComponent.setData({
+        this._pointEditComponent.setDataAndBlockForm({
           deleteButtonText: `Deleting...`,
         });
+        this._pointEditComponent.removeOnFavouriteClick(onFavouriteClick);
       }
 
       this._onDataChange(this, day, null);
