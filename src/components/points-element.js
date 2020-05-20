@@ -4,28 +4,11 @@ import moment from "moment";
 import {Events} from "../constants.js";
 
 
-const NOT_VALID_CASES = [`00D`, `00H`, `00M`];
-
-const getFinalDifferenceResult = (startTime, endTime) => {
-  const duration = moment.duration(endTime.diff(startTime));
-
-  const daysDifferenceDuration = moment.duration(duration).days();
-  const formattedDays = daysDifferenceDuration >= 10 ? daysDifferenceDuration : `0${daysDifferenceDuration}`;
-  const differenceResult = moment.utc(duration.asMilliseconds()).format(`${formattedDays}[D] HH[H] mm[M]`);
-
-  const resultToString = differenceResult.split(` `);
-
-  const checkValid = () => {
-    let resultString = ``;
-    for (let i = 0; i < resultToString.length; i++) {
-      if (NOT_VALID_CASES[i] !== resultToString[i]) {
-        resultString += `${resultToString[i]} `;
-      }
-    }
-    return resultString;
-  };
-
-  return (checkValid());
+const formatDifference = (element, text) => {
+  if (element === 0) {
+    return ``;
+  }
+  return `${(element).toString().padStart(2, `0`)}${text}`;
 };
 
 const createDayElement = (data, elementIndex) => {
@@ -35,17 +18,13 @@ const createDayElement = (data, elementIndex) => {
   const startTime = data.date[0];
   const endTime = data.date[1];
 
-  // console.log(moment.utc(dateDifference).format(`DD[day], HH[hour and] m [min]`));
+  const duration = moment.duration(dateDifference);
 
-  let x = 433276000;
-  let tempTime = moment.duration(x);
-  let y = ` ${tempTime.hours()} ${tempTime.minutes()} `;
 
-  console.log(y);
+  const differenceResult = `${formatDifference(Math.floor(duration.asDays()), `D`)} ${formatDifference(duration.hours(), `H`)} ${formatDifference(duration.minutes(), `M`)}`;
 
   const formattedStartTime = formatTime(startTime);
   const formattedEndTime = formatTime(endTime);
-  const differenceResult = getFinalDifferenceResult(startTime, endTime);
 
   setPretext(type);
 
