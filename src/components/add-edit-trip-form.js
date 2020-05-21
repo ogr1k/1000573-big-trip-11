@@ -31,9 +31,7 @@ const checkIsNewOffer = (currentCheckedOffers, newCheckedOffer) => {
 };
 
 const getFormData = (elements = {}) => {
-  const {flatpickrStart, flatpickrEnd, type, offers, currentDestination} = elements;
-
-  const form = document.querySelector(`.event--edit`);
+  const {form, flatpickrStart, flatpickrEnd, type, offers, currentDestination} = elements;
 
   const formData = new FormData(form);
 
@@ -432,6 +430,7 @@ export default class EditTripForm extends AbstractSmartComponent {
     const currentDestination = findCurrentDestination(this._destination, this._allDestinations);
 
     return getFormData({
+      form: this.getElement(),
       flatpickrStart: this._flatpickrStart,
       flatpickrEnd: this._flatpickrEnd,
       type: this._type,
