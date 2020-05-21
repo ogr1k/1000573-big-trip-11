@@ -30,7 +30,10 @@ const checkIsNewOffer = (currentCheckedOffers, newCheckedOffer) => {
   return true;
 };
 
-const getFormData = (form, startDate, endDate, parsedType, checkedOffers, currentDestination) => {
+const getFormData = (elements = {}) => {
+  const {flatpickrStart, flatpickrEnd, type, offers, currentDestination} = elements;
+
+  const form = document.querySelector(`.event--edit`);
 
   const formData = new FormData(form);
 
@@ -43,8 +46,8 @@ const getFormData = (form, startDate, endDate, parsedType, checkedOffers, curren
     return false;
   };
 
-  const formattedStartDate = startDate.selectedDates[0].toISOString();
-  const formattedEndDate = endDate.selectedDates[0].toISOString();
+  const formattedStartDate = flatpickrStart.selectedDates[0].toISOString();
+  const formattedEndDate = flatpickrEnd.selectedDates[0].toISOString();
 
 
   return new PointModel({
@@ -53,8 +56,8 @@ const getFormData = (form, startDate, endDate, parsedType, checkedOffers, curren
     "base_price": Number(formData.get(`event-price`)),
     "date_from": formattedStartDate,
     "date_to": formattedEndDate,
-    "type": Events[parsedType],
-    "offers": checkedOffers,
+    "type": Events[type],
+    "offers": offers,
     "is_favorite": parseIsFavourite(),
     "dateDiff": formattedEndDate - formattedStartDate
   });
@@ -169,6 +172,7 @@ const findCurrentDestination = (currentDestination, allDestinations) => {
 
 const createAddEditTripFormTemplate = (itemsData, allAvailableDestinations, allAvailableOffers, elements = {}) => {
   const isCreateForm = (itemsData === EmptyPoint);
+
   const id = elements.id;
   const destinationsNames = getDestinationNames(allAvailableDestinations);
   const isRequesting = elements.isRequesting;
@@ -189,9 +193,9 @@ const createAddEditTripFormTemplate = (itemsData, allAvailableDestinations, allA
   const checkedOptions = elements.offers;
 
 
-  let options;
+  let offers;
   if (availableOffers.length >= 1) {
-    options = availableOffers.map((it, index) => renderOption(it.title, it.price, index, findIsCheckedOption(it.title, checkedOptions), isRequesting)).join(`\n`);
+    offers = availableOffers.map((it, index) => renderOption(it.title, it.price, index, findIsCheckedOption(it.title, checkedOptions), isRequesting)).join(`\n`);
   }
 
   const isValidDestination = checkIsValidDestination(currentDestination.name, destinationsNames);
@@ -207,7 +211,7 @@ const createAddEditTripFormTemplate = (itemsData, allAvailableDestinations, allA
   const destinationOptions = destinationsNames.map((it) => setDestinationOptions(it)).join(`\n`);
   const pretext = setPretext(type);
 
-  const optionAndDestinationTemplate = getOptionsAndDestinationTemplate(availableOffers, options, currentDestination, images, destinationsNames);
+  const optionAndDestinationTemplate = getOptionsAndDestinationTemplate(availableOffers, offers, currentDestination, images, destinationsNames);
 
   return (
     `<form class="trip-events__item  event  event--edit ${isCreateForm ? `event--create` : ``}" action="#" method="post" id="${id}">
@@ -425,11 +429,15 @@ export default class EditTripForm extends AbstractSmartComponent {
   }
 
   getData() {
-    const form = document.querySelector(`.event--edit`);
-
     const currentDestination = findCurrentDestination(this._destination, this._allDestinations);
 
-    return getFormData(form, this._flatpickrStart, this._flatpickrEnd, this._type, this._offers, currentDestination);
+    return getFormData({
+      flatpickrStart: this._flatpickrStart,
+      flatpickrEnd: this._flatpickrEnd,
+      type: this._type,
+      offers: this._offers,
+      currentDestination
+    });
   }
 
   setDeleteButtonClickHandler(handler) {

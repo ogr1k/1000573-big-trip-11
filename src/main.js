@@ -12,7 +12,7 @@ import API from "./api.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
 import {NavigationTypes} from "./constants.js";
 
-const AUTHORIZATION = `Basic er895jdzbdw`;
+const AUTHORIZATION = `Basic er897jdzbdw`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
 
 const api = new API(AUTHORIZATION, END_POINT);
@@ -41,7 +41,7 @@ const tripSectionComponent = new TripSection();
 render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 
-const tripController = new TripController(tripSectionComponent, pointsModel, api);
+const tripController = new TripController(tripSectionComponent, pointsModel, api, newEventButtonComponent);
 
 const statisticsComponent = new Statistics(pointsModel);
 render(mainContainerElement, statisticsComponent, RenderPosition.BEFOREEND);
@@ -73,5 +73,3 @@ Promise.all([api.getDestinations(), api.getOffers(), api.getPoints()]).then(
       remove(loadingComponent);
       tripController.render();
     });
-
-export {newEventButtonComponent};
