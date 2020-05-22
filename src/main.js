@@ -12,7 +12,7 @@ import API from "./api.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
 import {NavigationTypes} from "./constants.js";
 
-const AUTHORIZATION = `Basic er893jdzbdw`;
+const AUTHORIZATION = `Basic er899jdzbdw`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
 
 const mainTripElement = document.querySelector(`.trip-main`);
