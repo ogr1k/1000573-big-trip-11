@@ -1,4 +1,6 @@
 import {RenderPosition, replace, render, remove} from "../utils/render.js";
+import {DefaultFormButtonsText} from "../components//add-edit-trip-form.js";
+import {newEventButtonComponent} from "../main.js";
 import Point from "../components/points-element.js";
 import EventOptions from "../components/points-option.js";
 import EditTripForm from "../components/add-edit-trip-form.js";
@@ -8,6 +10,8 @@ import moment from "moment";
 const SHAKE_ANIMATION_TIMEOUT = 600;
 const MAX_POINTS_COUNT = 3;
 const EMPTY_POINT_DEFAULT_TYPE = `BUS`;
+const ESCAPE_EVENT = `Escape`;
+const ESCAPE_EVENT_SHORT = `Esc`;
 
 export const Mode = {
   ADDING: `adding`,
@@ -20,13 +24,18 @@ export const EmptyPoint = {
   decription: ``,
   destination: ``,
   type: EMPTY_POINT_DEFAULT_TYPE,
-  date: [moment(new Date()), moment(new Date())],
+  dates: [moment(new Date()), moment(new Date())],
   price: ``,
   offers: []
 };
 
-const renderOptions = (element, currentItem) => {
-  render(element, new EventOptions(currentItem), RenderPosition.BEFOREEND);
+const RequestingFormButtonsText = {
+  DELETE: `Deleting...`,
+  SAVE: `Saving...`
+};
+
+const renderOptions = (option, currentItem) => {
+  render(option, new EventOptions(currentItem), RenderPosition.BEFOREEND);
 };
 
 export default class PointController {
@@ -45,34 +54,35 @@ export default class PointController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  render(day, mode) {
+  render(point, mode) {
     const oldPointComponent = this._pointComponent;
     const oldPointEditComponent = this._pointEditComponent;
     this._mode = mode;
 
-    const isCreateForm = (day === EmptyPoint);
+    const isCreateForm = (point === EmptyPoint);
 
-    const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`);
+    const newEventButtonElement = newEventButtonComponent.getElement();
 
-    this._pointComponent = new Point(day);
-    this._pointEditComponent = new EditTripForm(day, this._destinations, this._offers);
+    this._pointComponent = new Point(point);
+    this._pointEditComponent = new EditTripForm(point, this._destinations, this._offers);
 
     const onEditFormSubmit = (evt) => {
       evt.preventDefault();
       const data = this._pointEditComponent.getData();
 
-      this._pointEditComponent.setDataAndBlockForm({
-        saveButtonText: `Saving...`,
+      this._pointEditComponent.setButtonTextData({
+        SAVE: RequestingFormButtonsText.SAVE,
       });
 
       this._pointEditComponent.removeOnFavouriteClick(onFavouriteClick);
 
-      this._onDataChange(this, day, data);
+      newEventButtonElement.disabled = false;
+
+      this._onDataChange(this, point, data);
     };
 
     switch (mode) {
       case Mode.DEFAULT:
-        newEventButtonElement.disabled = false;
         if (oldPointComponent && oldPointEditComponent) {
           replace(this._pointComponent, oldPointComponent);
           replace(this._pointEditComponent, oldPointEditComponent);
@@ -89,7 +99,7 @@ export default class PointController {
         }
         this._pointEditComponent.setOnFormSubmit(onEditFormSubmit);
         document.addEventListener(`keydown`, this._onEscKeyDown);
-        render(document.querySelector(`.trip-events`), this._pointEditComponent, RenderPosition.BEFOREBEGIN, this._container.parentElement);
+        render(document.querySelector(`.trip-events`), this._pointEditComponent, RenderPosition.BEFOREBEGIN, this._container);
         break;
     }
 
@@ -102,26 +112,26 @@ export default class PointController {
     this._pointEditComponent.setDeleteButtonClickHandler((evt) => {
       evt.preventDefault();
       if (!isCreateForm) {
-        this._pointEditComponent.setDataAndBlockForm({
-          deleteButtonText: `Deleting...`,
+        this._pointEditComponent.setButtonTextData({
+          DELETE: RequestingFormButtonsText.DELETE,
         });
         this._pointEditComponent.removeOnFavouriteClick(onFavouriteClick);
       }
 
-      this._onDataChange(this, day, null);
+      this._onDataChange(this, point, null);
       newEventButtonElement.disabled = false;
     });
 
     const onFavouriteClick = () => {
-      const newPoint = PointModel.clone(day);
+      const newPoint = PointModel.clone(point);
       newPoint.isFavourite = !newPoint.isFavourite;
-      const isStarClicked = true;
+      const isFavouriteClicked = true;
 
       this._pointEditComponent.changeIsFavourite();
-      this._pointEditComponent.setDataAndBlockForm();
+      this._pointEditComponent.setButtonTextData();
       this._pointEditComponent.removeOnFavouriteClick(onFavouriteClick);
 
-      this._onDataChange(this, day, newPoint, isStarClicked);
+      this._onDataChange(this, point, newPoint, isFavouriteClicked);
     };
 
 
@@ -137,7 +147,7 @@ export default class PointController {
     this._pointComponent.setOnRollupClick(onRollUpClick);
 
     const optionsContainer = this._pointComponent.getElement().querySelector(`.event__selected-offers`);
-    day.offers.slice(0, MAX_POINTS_COUNT).map((option) => renderOptions(optionsContainer, option)).join(`\n`);
+    point.offers.slice(0, MAX_POINTS_COUNT).map((option) => renderOptions(optionsContainer, option)).join(`\n`);
   }
 
   destroy() {
@@ -147,6 +157,10 @@ export default class PointController {
   }
 
   rerenderEditForm() {
+    this._pointEditComponent.setButtonTextData({
+      DELETE: DefaultFormButtonsText.DELETE,
+      SAVE: DefaultFormButtonsText.SAVE
+    });
     this._pointEditComponent.changeIsRequesting(false);
   }
 
@@ -189,7 +203,7 @@ export default class PointController {
   }
 
   _onEscKeyDown(evt) {
-    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
+    const isEscKey = evt.key === ESCAPE_EVENT || evt.key === ESCAPE_EVENT_SHORT;
 
     if (isEscKey) {
       if (this._mode === Mode.ADDING) {

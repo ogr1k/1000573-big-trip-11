@@ -5,8 +5,8 @@ const formatTime = (date) => {
 };
 
 
-const setPretext = (element) => {
-  return EventsPretexts[element] || `to`;
+const setPretext = (type) => {
+  return EventsPretexts[type] || `to`;
 };
 
 export {setPretext};

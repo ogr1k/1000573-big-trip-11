@@ -16,7 +16,7 @@ const checkStatus = (response) => {
   }
 };
 
-const API = class {
+export default class API {
   constructor(authorization, endPoint) {
     this._authorization = authorization;
     this._endPoint = endPoint;
@@ -58,11 +58,11 @@ const API = class {
       .then(Point.parsePoint);
   }
 
-  updatePoint(id, data) {
+  updatePoint(id, point) {
     return this._load({
       url: `points/${id}`,
       method: Method.PUT,
-      body: JSON.stringify(data.toRAW()),
+      body: JSON.stringify(point.toRAW()),
       headers: new Headers({"Content-Type": `application/json`})
     })
     .then((response) => response.json())
@@ -82,6 +82,4 @@ const API = class {
         throw err;
       });
   }
-};
-
-export default API;
+}

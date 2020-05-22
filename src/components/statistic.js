@@ -7,6 +7,7 @@ import moment from 'moment';
 const BAR_HEIGHT = 55;
 const ELEMENT_DATES_DIFFERENCE_KEY = `dateDifference`;
 const ELEMENT_PRICE_KEY = `price`;
+const RIDE_GROUP = [`TRANSPORT`, `SHIP`, `TRAIN`, `BUS`, `TAXI`];
 
 const MoneyAndTimeEvents = {
   FLY: `FLIGHT`,
@@ -14,14 +15,14 @@ const MoneyAndTimeEvents = {
   DRIVE: `DRIVE`,
   LOOK: `SIGHTSEEING`,
   EAT: `RESTAURANT`,
-  RIDE: [`TRANSPORT`, `SHIP`, `TRAIN`, `BUS`, `TAXI`]
+  RIDE: RIDE_GROUP
 };
 
 const TransportEvents = {
   DRIVE: `DRIVE`,
   FLY: `FLIGHT`,
   SAIL: `SHIP`,
-  RIDE: [`TRANSPORT`, `SHIP`, `TRAIN`, `BUS`, `TAXI`]
+  RIDE: RIDE_GROUP
 };
 
 const getTotalData = (points, type, elementKey) => {
@@ -48,7 +49,7 @@ const getTotalData = (points, type, elementKey) => {
 
 const renderMoneyChart = (moneyCtx, points) => {
   moneyCtx.height = BAR_HEIGHT * 6;
-  let moneyData = [];
+  const moneyData = [];
 
   const types = Object.keys(MoneyAndTimeEvents);
 
@@ -127,8 +128,8 @@ const findDriveCount = (points, type) => {
 
   points.map((point) => {
     const formattedType = point.type;
-    if (Array.isArray(TransportEvents[type])) {
 
+    if (Array.isArray(TransportEvents[type])) {
       for (const transportType of TransportEvents[type]) {
         if (transportType === formattedType) {
           count++;
@@ -148,7 +149,7 @@ const renderTransportChart = (transportCtx, points) => {
   transportCtx.height = BAR_HEIGHT * 6;
 
   const types = Object.keys(TransportEvents);
-  let transportData = [];
+  const transportData = [];
   types.map((element) => {
     transportData.push(findDriveCount(points, element));
   });
@@ -230,7 +231,7 @@ const findTime = (points, type) => {
 const renderTimeChart = (transportCtx, points) => {
   transportCtx.height = BAR_HEIGHT * 6;
 
-  let timeData = [];
+  const timeData = [];
 
   const types = Object.keys(MoneyAndTimeEvents);
 

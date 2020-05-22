@@ -1,7 +1,7 @@
 import {getPointsByFilter} from "../utils/filter.js";
 import {getSortedPoints} from "../utils/sort.js";
 import {FilterType} from "../constants.js";
-import {SortType} from "../components/sorting.js";
+import {SortType} from "../constants.js";
 
 
 export default class Points {
@@ -19,10 +19,6 @@ export default class Points {
   getPoints() {
     const sortedPoints = getSortedPoints(this._points, this._activeSortType);
     return getPointsByFilter(sortedPoints, this._activeFilterType);
-  }
-
-  getPointsAll() {
-    return this._points;
   }
 
   setPoints(points) {

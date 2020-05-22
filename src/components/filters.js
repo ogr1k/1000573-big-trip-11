@@ -17,8 +17,8 @@ const createFilterElement = (name, isChecked) => {
 };
 
 
-const createFiltersTemplate = (data) => {
-  const filters = data.map((it) => createFilterElement(it.name, it.checked)).join(`\n`);
+const createFiltersTemplate = (filterNames) => {
+  const filters = filterNames.map((filter) => createFilterElement(filter.name, filter.checked)).join(`\n`);
   return (
     `<form class="trip-filters" action="#" method="get">
      ${filters}
@@ -28,14 +28,14 @@ const createFiltersTemplate = (data) => {
 
 
 export default class Filter extends AbstractComponent {
-  constructor(day) {
+  constructor(filtersNames) {
     super();
 
-    this._day = day;
+    this._filtersNames = filtersNames;
   }
 
   getTemplate() {
-    return createFiltersTemplate(this._day);
+    return createFiltersTemplate(this._filtersNames);
   }
 
   setFilterChangeHandler(handler) {

@@ -12,17 +12,18 @@ import API from "./api.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
 import {NavigationTypes} from "./constants.js";
 
-const AUTHORIZATION = `Basic er897jdzbdw`;
+const AUTHORIZATION = `Basic er893jdzbdw`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
+
+const mainTripElement = document.querySelector(`.trip-main`);
+const mainContainerElement = document.querySelector(`#js-trip-event`);
+const filtersContainerElement = document.querySelector(`.trip-controls`);
 
 const api = new API(AUTHORIZATION, END_POINT);
 
 const pointsModel = new PointsModel();
-
-const mainTripElement = document.querySelector(`.trip-main`);
 render(mainTripElement, new InformationSection(), RenderPosition.AFTERBEGIN);
 
-const filtersContainerElement = document.querySelector(`.trip-controls`);
 const tabsComponent = new Tabs(Object.values(NavigationTypes));
 render(filtersContainerElement, tabsComponent, RenderPosition.AFTERBEGIN);
 
@@ -32,8 +33,6 @@ render(mainTripElement, newEventButtonComponent, RenderPosition.BEFOREEND);
 const filterController = new FilterController(filtersContainerElement, pointsModel);
 filterController.render();
 
-const mainContainerElement = document.querySelector(`#js-trip-event`);
-
 const loadingComponent = new Loading();
 render(mainContainerElement, loadingComponent, RenderPosition.BEFOREEND);
 
@@ -41,7 +40,7 @@ const tripSectionComponent = new TripSection();
 render(mainContainerElement, tripSectionComponent, RenderPosition.BEFOREEND);
 
 
-const tripController = new TripController(tripSectionComponent, pointsModel, api, newEventButtonComponent);
+const tripController = new TripController(tripSectionComponent, pointsModel, api);
 
 const statisticsComponent = new Statistics(pointsModel);
 render(mainContainerElement, statisticsComponent, RenderPosition.BEFOREEND);
@@ -73,3 +72,5 @@ Promise.all([api.getDestinations(), api.getOffers(), api.getPoints()]).then(
       remove(loadingComponent);
       tripController.render();
     });
+
+export {newEventButtonComponent};

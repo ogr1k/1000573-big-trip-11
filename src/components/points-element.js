@@ -7,19 +7,19 @@ const HOURS_PER_DAY = 24;
 const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 1440;
 
-const formatDifference = (element, text) => {
-  if (element === 0) {
+const formatDifference = (duration, text) => {
+  if (duration === 0) {
     return ``;
   }
-  return `${(element).toString().padStart(2, `0`)}${text}`;
+  return `${(duration).toString().padStart(2, `0`)}${text}`;
 };
 
-const createDayElement = (data, elementIndex) => {
-  let {type, destination, price, dateDifference} = data;
+const createPointElement = (point, elementIndex) => {
+  let {type, destination, price, dateDifference} = point;
 
   type = Events[type];
-  const startTime = data.date[0];
-  const endTime = data.date[1];
+  const startTime = point.dates[0];
+  const endTime = point.dates[1];
 
 
   const duration = moment.duration(dateDifference);
@@ -77,16 +77,11 @@ export default class Point extends AbstractComponent {
   }
 
   getTemplate() {
-    return createDayElement(this._point, this._index);
+    return createPointElement(this._point, this._index);
   }
 
   setOnRollupClick(handler) {
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
-  }
-
-  removeOnRollupClick(handler) {
-    this.getElement().querySelector(`.event__rollup-btn`)
-      .removeEventListener(`click`, handler);
   }
 }

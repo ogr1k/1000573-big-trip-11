@@ -39,3 +39,9 @@ export const NavigationTypes = {
   DEFAULT: `Table`,
   STATS: `Stats`
 };
+
+export const SortType = {
+  DEFAULT: `event`,
+  TIME: `time`,
+  PRICE: `price`,
+};

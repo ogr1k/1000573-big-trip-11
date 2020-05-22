@@ -1,19 +1,17 @@
 import {FilterType} from "../constants.js";
 
-const getFuturePoints = (points, nowDate) => {
+const getFuturePoints = (points, now) => {
   return points.filter((point) => {
-    const eventStartDate = point.date[0];
-    const pointDate = eventStartDate;
-    return nowDate < pointDate;
+    const eventStartDate = point.dates[0];
+    return now < eventStartDate;
   });
 };
 
-const getPastDate = (points, nowDate) => {
+const getPastPoints = (points, now) => {
   return points.filter((point) => {
-    const eventEndDate = point.date[1];
-    const pointDate = eventEndDate;
+    const eventEndDate = point.dates[1];
 
-    return nowDate > pointDate;
+    return now > eventEndDate;
 
   });
 };
@@ -25,7 +23,7 @@ export const getPointsByFilter = (points, filterType) => {
     case FilterType.FUTURE:
       return getFuturePoints(points, nowDate);
     case FilterType.PAST:
-      return getPastDate(points, nowDate);
+      return getPastPoints(points, nowDate);
   }
   return points;
 };

@@ -1,13 +1,5 @@
 import AbstractComponent from "./abstract-component.js";
-
-export const SORT_ELEMENTS = [`event`, `time`, `price`];
-
-export const SortType = {
-  DEFAULT: `event`,
-  TIME: `time`,
-  PRICE: `price`,
-};
-
+import {SortType} from "../constants.js";
 
 const createSortElement = (name, isChecked) => {
   return (`<div class="trip-sort__item  trip-sort__item--${name}">
@@ -24,7 +16,7 @@ const createSortElement = (name, isChecked) => {
 
 
 const createSortTemplate = () => {
-  const sorts = Object.values(SortType).map((it, index) => createSortElement(it, index === 0)).join(`\n`);
+  const sorts = Object.values(SortType).map((sortName, index) => createSortElement(sortName, index === 0)).join(`\n`);
   return (
     `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
         <span class="trip-sort__item  trip-sort__item--day">Day</span>

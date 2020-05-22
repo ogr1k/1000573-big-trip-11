@@ -1,39 +1,40 @@
 import moment from "moment";
+import {Events} from "../constants.js";
 
 export default class Point {
   constructor(data) {
     this.destination = data[`destination`];
     this.id = data[`id`];
-    this.date = [moment(data[`date_from`]), moment(data[`date_to`])];
+    this.dates = [moment(data[`date_from`]), moment(data[`date_to`])];
     this.isFavourite = Boolean(data[`is_favorite`]);
     this.price = data[`base_price`];
     this.offers = data[`offers`];
     this.type = data[`type`].replace(`-`, ``).toUpperCase();
-    this.dateDifference = this.date[1] - this.date[0];
+    this.dateDifference = this.dates[1] - this.dates[0];
   }
 
   toRAW() {
     return {
       "base_price": this.price,
-      "date_from": this.date[0].toISOString(),
-      "date_to": this.date[1].toISOString(),
+      "date_from": this.dates[0].toISOString(),
+      "date_to": this.dates[1].toISOString(),
       "destination": this.destination,
       "id": this.id,
       "is_favorite": this.isFavourite,
       "offers": this.offers,
-      "type": this.type.toLowerCase()
+      "type": Events[this.type].toLowerCase()
     };
   }
 
-  static parsePoint(data) {
-    return new Point(data);
+  static parsePoint(point) {
+    return new Point(point);
   }
 
-  static parsePoints(data) {
-    return data.map(Point.parsePoint);
+  static parsePoints(points) {
+    return points.map(Point.parsePoint);
   }
 
-  static clone(data) {
-    return new Point(data.toRAW());
+  static clone(point) {
+    return new Point(point.toRAW());
   }
 }
