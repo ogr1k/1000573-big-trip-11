@@ -239,7 +239,7 @@ export default class TripController {
 
   _onViewChange() {
     if (this._showedPointControllers.length) {
-      this._showedPointControllers.forEach((it) => it.setDefaultView());
+      this._showedPointControllers.forEach((pointController) => pointController.setDefaultView());
     }
   }
 

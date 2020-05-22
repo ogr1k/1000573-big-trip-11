@@ -123,8 +123,8 @@ export default class PointController {
     });
 
     const onFavouriteClick = () => {
+      point.isFavourite = !point.isFavourite;
       const newPoint = PointModel.clone(point);
-      newPoint.isFavourite = !newPoint.isFavourite;
       const isFavouriteClicked = true;
 
       this._pointEditComponent.changeIsFavourite();
