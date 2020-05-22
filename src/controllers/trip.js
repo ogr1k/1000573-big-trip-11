@@ -183,10 +183,6 @@ export default class TripController {
     this._renderPoints(this._pointsModel.getPoints());
   }
 
-  _catchRequestError(controller) {
-    controller.rerenderEditForm();
-    controller.shake();
-  }
 
   _onDataChange(pointController, oldData, newData, favouriteChanged) {
 
@@ -194,7 +190,7 @@ export default class TripController {
       this._api.updatePoint(oldData.id, newData).
       then(() => pointController.rerenderEditForm())
       .catch(() => {
-        this._catchRequestError(pointController);
+        pointController.shake();
       });
       return;
     }
@@ -214,7 +210,6 @@ export default class TripController {
         })
         .catch(() => {
           pointController.shake();
-          pointController.rerenderEditForm();
         });
       }
     } else if (newData === null) {
@@ -224,7 +219,7 @@ export default class TripController {
         this._updatePoints();
       })
       .catch(() => {
-        this._catchRequestError(pointController);
+        pointController.shake();
       });
     } else {
       this._api.updatePoint(oldData.id, newData)
@@ -237,7 +232,7 @@ export default class TripController {
         }
       })
       .catch(() => {
-        this._catchRequestError(pointController);
+        pointController.shake();
       });
     }
   }

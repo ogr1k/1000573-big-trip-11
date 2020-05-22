@@ -182,6 +182,7 @@ export default class PointController {
     setTimeout(() => {
       this._pointEditComponent.getElement().style.animation = ``;
       this._pointComponent.getElement().style.animation = ``;
+      this.rerenderEditForm();
     }, SHAKE_ANIMATION_TIMEOUT);
   }
 
